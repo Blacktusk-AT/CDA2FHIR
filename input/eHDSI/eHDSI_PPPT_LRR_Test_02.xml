@@ -77,7 +77,7 @@
     <recordTarget>
         <patientRole>
             <!-- Identifikation des Patienten im lokalen System -->
-            <id root="1.2.40.0.34.99.4613.3.2" extension="58232" assigningAuthorityName="Amadeus Spital"/>
+            <id root="1.2.40.0.34.99.4613.3.2" extension="73232" assigningAuthorityName="Amadeus Spital"/>
             <!-- Sozialversicherungsnummer des Patienten -->
             <id root="1.2.40.0.10.1.4.3.1" extension="6932281524" assigningAuthorityName="Österreichische Sozialversicherung"/>
             <!-- bPK -->
@@ -96,7 +96,7 @@
                     <prefix qualifier="AC">Dr.med.dent.</prefix>
                     <given>Ludwiga</given>
                     <given>Benedikt</given>
-                    <family>264WGerhardt ELGATest</family>
+                    <family>AGIWGerhardt ELGATest</family>
                 </name>
                 <!-- Geschlecht des Patienten (siehe Allgemeiner Implementierungsleitfaden) -->
                 <administrativeGenderCode code="F" displayName="Female" codeSystem="2.16.840.1.113883.5.1" codeSystemName="HL7:AdministrativeGender"/>
