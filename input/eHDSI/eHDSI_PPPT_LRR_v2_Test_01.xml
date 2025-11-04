@@ -95,7 +95,7 @@
 	<!--
 		Erstellungsdatum des Dokuments (siehe Allgemeiner Leitfaden, Kapitel 6.2.9)
 	-->
-	<effectiveTime value="20150730130100+0200"/>
+	<effectiveTime value="20161201063400+0100"/>
 
 	<!--
 		Vertraulichkeitscode (siehe Allgemeiner Leitfaden, Kapitel 6.2.10)
@@ -903,7 +903,7 @@
 		<!-- IHE template für Ordering Provider -->
 		<templateId root="1.3.6.1.4.1.19376.1.3.3.1.6"/>
 
-		<time value="20161201071500+0100"/>
+		<time value="20161201063400+0100"/>
 		<associatedEntity classCode="PROV">
 			<id root="1.2.40.0.34.99.1" assigningAuthorityName="GDA Index"/>
 			<addr>
@@ -984,8 +984,8 @@
 			<performer typeCode="PRF">
 				<templateId root="1.3.6.1.4.1.19376.1.3.3.1.7"/>
 				<time>
-					<low value="20161201061325+0100"/>
-					<high value="20161201161500+0100"/>
+					<low value="20161201083325+0100"/>
+					<high value="20161201105000+0100"/>
 				</time>
 				<assignedEntity>
 					<id root="1.2.40.0.34.99.111.0.2" extension="55146"/>
@@ -1079,9 +1079,9 @@
 			-->
 			<effectiveTime>
 				<!-- Im Falle des Entlassungsbriefs: Zeitpunkt der Aufnahme des Patienten in den stationären Aufenthalt -->
-				<low value="20160730104600+0200"/>
+				<low value="20161130104600+0200"/>
 				<!-- Im Falle des Entlassungsbriefs: Zeitpunkt der administrativen Entlassung des Patienten aus dem stationären Aufenthalt -->
-				<high value="20160817120000+0100"/>
+				<high value="20161202120000+0100"/>
 			</effectiveTime>
 
 			<!--
@@ -2878,7 +2878,7 @@
 												codeSystem="1.3.5.1.4.1.19376.1.5.3.2"
 												codeSystemName="IHEActCode"
 												displayName="Receive Time"/>
-											<effectiveTime value="20161201081500+0100"/>
+											<effectiveTime value="20161201081000+0100"/>
 											<!-- Annotation command for received Specimen -->
 											<entryRelationship typeCode="COMP">
 												<act classCode="ACT" moodCode="EVN">
@@ -2977,7 +2977,7 @@
 												codeSystem="1.3.5.1.4.1.19376.1.5.3.2"
 												codeSystemName="IHEActCode"
 												displayName="Receive Time"/>
-											<effectiveTime value="20161201081500+0100"/>
+											<effectiveTime value="20161201081000+0100"/>
 										</act>
 									</entryRelationship>
 
@@ -3190,7 +3190,7 @@
 												<reference value="#OBS-1-1"/>
 											</text>
 											<statusCode code="completed"/>
-											<effectiveTime value="20161201073406+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="10*9/L" value="26" xsi:type="PQ"/>
 											<interpretationCode code="H"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -3224,7 +3224,7 @@
 												<reference value="#OBS-1-2"/>
 											</text>
 											<statusCode code="completed"/>
-											<effectiveTime value="20161201073406+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="10*9/L" value="165" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -3259,7 +3259,7 @@
 												<reference value="#OBS-1-3"/>
 											</text>
 											<statusCode code="completed"/>
-											<effectiveTime value="20161201073406+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="10*12/L" value="5.39" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -3294,7 +3294,7 @@
 												<reference value="#OBS-1-4"/>
 											</text>
 											<statusCode code="completed"/>
-											<effectiveTime value="20161201073406+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="g/dL" value="16.0" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -3330,7 +3330,7 @@
 											</text>
 											<statusCode code="completed"/>
 											<!-- Physiologische Zeit der Analyse -->
-											<effectiveTime value="20161201073406+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="%" value="49.7" xsi:type="PQ"/>
 											<interpretationCode code="H"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -3339,7 +3339,7 @@
 											<!-- Template für Validator <templateId root="1.3.6.1.4.1.19376.1.3.3.1.5"/> -->
 											<participant typeCode="AUTHEN">
 												<templateId root="1.3.6.1.4.1.19376.1.3.3.1.5"/>
-												<time value="20160123211000+0100"/>
+												<time value="20161201091000+0100"/>
 												<participantRole>
 												<id extension="332" root="1.3.6.1.4.1.19376.1.3.4"/>
 												<addr nullFlavor="NA"/>
@@ -3381,7 +3381,7 @@
 												<reference value="#OBS-1-6"/>
 											</text>
 											<statusCode code="completed"/>
-											<effectiveTime value="20161201073406+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="pg" value="29.7" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -3416,7 +3416,7 @@
 												<reference value="#OBS-1-7"/>
 											</text>
 											<statusCode code="completed"/>
-											<effectiveTime value="20161201073406+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="fL" value="92.2" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -3451,7 +3451,7 @@
 												<reference value="#OBS-1-8"/>
 											</text>
 											<statusCode code="completed"/>
-											<effectiveTime value="20161201073406+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="g/dL" value="32.2" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -3487,7 +3487,7 @@
 												<reference value="#OBS-1-12"/>
 											</text>
 											<statusCode code="completed"/>
-											<effectiveTime value="20161201073406+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="%" value="7" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -3547,7 +3547,7 @@
 												<reference value="#OBS-1-9"/>
 											</text>
 											<statusCode code="completed"/>
-											<effectiveTime value="20161201073406+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="%" value="0.5" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -3582,7 +3582,7 @@
 												<reference value="#OBS-1-10"/>
 											</text>
 											<statusCode code="completed"/>
-											<effectiveTime value="20161201073406+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="%" value="92.5" xsi:type="PQ"/>
 											<interpretationCode code="H"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -5239,7 +5239,7 @@
 												<reference value="#OBS-1-11"/>
 											</text>
 											<statusCode code="completed"/>
-											<effectiveTime value="20161201073406+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="%" value="4" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -7077,7 +7077,7 @@
 												<reference value="#OBS-2-1"/>
 											</text>
 											<statusCode code="completed"/>
-											<effectiveTime value="20161201073406+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="%" value="116" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -7112,7 +7112,7 @@
 												<reference value="#OBS-2-2"/>
 											</text>
 											<statusCode code="completed"/>
-											<effectiveTime value="20161201073406+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value xsi:type="PQ" value="1.1" unit="1"/>
 											<interpretationCode code="L"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -7161,7 +7161,7 @@
 												<reference value="#OBS-2-3"/>
 											</text>
 											<statusCode code="completed"/>
-											<effectiveTime value="20161201073406+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="s" value="29.3" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -7197,7 +7197,7 @@
 												<reference value="#OBS-2-4"/>
 											</text>
 											<statusCode code="completed"/>
-											<effectiveTime value="20161201073406+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="%" value="101" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -7233,7 +7233,7 @@
 												<reference value="#OBS-2-5"/>
 											</text>
 											<statusCode code="completed"/>
-											<effectiveTime value="20161201073406+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="mg/L" value="0.30" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -7280,7 +7280,7 @@
 												<reference value="#OBS-2-6"/>
 											</text>
 											<statusCode code="completed"/>
-											<effectiveTime value="20161201073406+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="%" value="104" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -7289,7 +7289,7 @@
 
 											<performer typeCode="PRF">
 												<templateId root="1.2.40.0.34.11.4.3.3"/>
-												<time value="20161201121500+0100"/>
+												<time value="20161201091000+0100"/>
 												<assignedEntity>
 													<id root="1.2.40.0.34.99.111.0.2" extension="55146"/>
 												<code code="E"
@@ -7354,7 +7354,7 @@
 												<reference value="#OBS-2-7"/>
 											</text>
 											<statusCode code="completed"/>
-											<effectiveTime value="20161201073406+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="%" value="112" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -7363,7 +7363,7 @@
 
 											<performer typeCode="PRF">
 												<templateId root="1.2.40.0.34.11.4.3.3"/>
-												<time value="20161201073406+0100"/>
+												<time value="20161201091000+0100"/>
 												<assignedEntity>
 													<id root="1.2.40.0.34.99.111.0.2" extension="55146"/>
 												<code code="E"
@@ -7438,7 +7438,7 @@
 												<reference value="#OBS-2-8"/>
 											</text>
 											<statusCode code="completed"/>
-											<effectiveTime value="20161201073406+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="%" value="125" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -7474,7 +7474,7 @@
 												<reference value="#OBS-2-9"/>
 											</text>
 											<statusCode code="completed"/>
-											<effectiveTime value="20161201073406+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="%" value="75" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -7773,7 +7773,7 @@
 											</text>
 											<statusCode code="completed"/>
 											<!-- Physiologische Zeit der Analyse -->
-											<effectiveTime value="20161201075606+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="mm" value="33" xsi:type="PQ"/>
 											<interpretationCode code="H"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -7810,7 +7810,7 @@
 											</text>
 											<statusCode code="completed"/>
 											<!-- Physiologische Zeit der Analyse -->
-											<effectiveTime value="20161201075606+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="mm" value="56" xsi:type="PQ"/>
 											<interpretationCode code="H"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -7847,7 +7847,7 @@
 											</text>
 											<statusCode code="completed"/>
 											<!-- Physiologische Zeit der Analyse -->
-											<effectiveTime value="20161201075606+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="mmol/L" value="4.96" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -7884,7 +7884,7 @@
 											</text>
 											<statusCode code="completed"/>
 											<!-- Physiologische Zeit der Analyse -->
-											<effectiveTime value="20161201075606+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="mmol/L" value="137" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -7921,7 +7921,7 @@
 											</text>
 											<statusCode code="completed"/>
 											<!-- Physiologische Zeit der Analyse -->
-											<effectiveTime value="20161201075606+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="mmol/L" value="105" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -7958,7 +7958,7 @@
 											</text>
 											<statusCode code="completed"/>
 											<!-- Physiologische Zeit der Analyse -->
-											<effectiveTime value="20161201075606+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="mmol/L" value="2.71" xsi:type="PQ"/>
 											<interpretationCode code="H"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -7994,7 +7994,7 @@
 											</text>
 											<statusCode code="completed"/>
 											<!-- Physiologische Zeit der Analyse -->
-											<effectiveTime value="20161201075606+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="[IU]/L" value="142" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -8031,7 +8031,7 @@
 											</text>
 											<statusCode code="completed"/>
 											<!-- Physiologische Zeit der Analyse -->
-											<effectiveTime value="20161201075606+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="ng/L" value="0.01" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -8068,7 +8068,7 @@
 											</text>
 											<statusCode code="completed"/>
 											<!-- Physiologische Zeit der Analyse -->
-											<effectiveTime value="20161201075606+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="[IU]/L" value="28" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -8104,7 +8104,7 @@
 											</text>
 											<statusCode code="completed"/>
 											<!-- Physiologische Zeit der Analyse -->
-											<effectiveTime value="20161201075606+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="[IU]/L" value="25" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -8140,7 +8140,7 @@
 											</text>
 											<statusCode code="completed"/>
 											<!-- Physiologische Zeit der Analyse -->
-											<effectiveTime value="20161201075606+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="[IU]/L" value="21" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -8178,7 +8178,7 @@
 											</text>
 											<statusCode code="completed"/>
 											<!-- Physiologische Zeit der Analyse -->
-											<effectiveTime value="20161201075606+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="[IU]/L" value="54" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -8215,7 +8215,7 @@
 											</text>
 											<statusCode code="completed"/>
 											<!-- Physiologische Zeit der Analyse -->
-											<effectiveTime value="20161201075606+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="ug/dL" value="91" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -8251,7 +8251,7 @@
 											</text>
 											<statusCode code="completed"/>
 											<!-- Physiologische Zeit der Analyse -->
-											<effectiveTime value="20161201075606+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="g/L" value="2.1" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -8289,7 +8289,7 @@
 											</text>
 											<statusCode code="completed"/>
 											<!-- Physiologische Zeit der Analyse -->
-											<effectiveTime value="20161201075606+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="%" value="30.7" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -8325,7 +8325,7 @@
 											</text>
 											<statusCode code="completed"/>
 											<!-- Physiologische Zeit der Analyse -->
-											<effectiveTime value="20161201075606+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="ug/L" value="724" xsi:type="PQ"/>
 											<interpretationCode code="HH"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -8362,7 +8362,7 @@
 											</text>
 											<statusCode code="completed"/>
 											<!-- Physiologische Zeit der Analyse -->
-											<effectiveTime value="20161201075606+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="%" value="1.0" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -8398,7 +8398,7 @@
 											</text>
 											<statusCode code="completed"/>
 											<!-- Physiologische Zeit der Analyse -->
-											<effectiveTime value="20161201075606+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="mg/dL" value="171" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -8434,7 +8434,7 @@
 											</text>
 											<statusCode code="completed"/>
 											<!-- Physiologische Zeit der Analyse -->
-											<effectiveTime value="20161201075606+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="mg/dL" value="36" xsi:type="PQ"/>
 											<interpretationCode code="L"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -8470,7 +8470,7 @@
 											</text>
 											<statusCode code="completed"/>
 											<!-- Physiologische Zeit der Analyse -->
-											<effectiveTime value="20161201075606+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="mg/dL" value="116" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -8507,7 +8507,7 @@
 											</text>
 											<statusCode code="completed"/>
 											<!-- Physiologische Zeit der Analyse -->
-											<effectiveTime value="20161201075606+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="mg/dL" value="98" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -8554,7 +8554,7 @@
 											</text>
 											<statusCode code="completed"/>
 											<!-- Physiologische Zeit der Analyse -->
-											<effectiveTime value="20161201075606+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="g/L" value="39.7" xsi:type="PQ"/>
 											<interpretationCode code="L"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -8591,7 +8591,7 @@
 											</text>
 											<statusCode code="completed"/>
 											<!-- Physiologische Zeit der Analyse -->
-											<effectiveTime value="20161201075606+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="g/L" value="1.9" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -8629,7 +8629,7 @@
 											</text>
 											<statusCode code="completed"/>
 											<!-- Physiologische Zeit der Analyse -->
-											<effectiveTime value="20161201075606+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="g/L" value="8.5" xsi:type="PQ"/>
 											<interpretationCode code="H"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -8664,7 +8664,7 @@
 											</text>
 											<statusCode code="completed"/>
 											<!-- Physiologische Zeit der Analyse -->
-											<effectiveTime value="20161201075606+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="g/L" value="7.1" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -8699,7 +8699,7 @@
 											</text>
 											<statusCode code="completed"/>
 											<!-- Physiologische Zeit der Analyse -->
-											<effectiveTime value="20161201075606+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="g/L" value="8.5" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -10911,7 +10911,7 @@
 												<reference value="#OBS-4-1"/>
 											</text>
 											<statusCode code="completed"/>
-											<effectiveTime value="20161201081406+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="u[IU]/mL" value="1.00" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -10945,7 +10945,7 @@
 												<reference value="#OBS-4-2"/>
 											</text>
 											<statusCode code="completed"/>
-											<effectiveTime value="20161201081406+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="ng/mL" value="1.00" xsi:type="PQ"/>
 											<interpretationCode code="LL"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -10979,7 +10979,7 @@
 												<reference value="#OBS-4-3"/>
 											</text>
 											<statusCode code="completed"/>
-											<effectiveTime value="20161201081406+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="ng/dL" value="1.00" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -11013,7 +11013,7 @@
 												<reference value="#OBS-4-4"/>
 											</text>
 											<statusCode code="completed"/>
-											<effectiveTime value="20161201081406+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="ng/mL" value="1.00" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -11047,7 +11047,7 @@
 												<reference value="#OBS-4-5"/>
 											</text>
 											<statusCode code="completed"/>
-											<effectiveTime value="20161201081406+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="pg/mL" value="1.00" xsi:type="PQ"/>
 											<interpretationCode code="L"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -11108,7 +11108,7 @@
 												<reference value="#OBS-5-1"/>
 											</text>
 											<statusCode code="completed"/>
-											<effectiveTime value="20161201081406+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="ng/mL" value="7.3" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -11158,7 +11158,7 @@
 												<reference value="#OBS-5-2"/>
 											</text>
 											<statusCode code="completed"/>
-											<effectiveTime value="20161201081406+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="pmol/L" value="366" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
@@ -11213,7 +11213,7 @@
 												<reference value="#OBS-5-3"/>
 											</text>
 											<statusCode code="completed"/>
-											<effectiveTime value="20161201081406+0100"/>
+											<effectiveTime value="20161201063400+0100"/>
 											<value unit="pmol/L" value="390" xsi:type="PQ"/>
 											<interpretationCode code="N"
 												codeSystemName="HL7:ObservationInterpretation"
