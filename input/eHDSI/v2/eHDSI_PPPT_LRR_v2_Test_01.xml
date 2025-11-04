@@ -127,30 +127,25 @@
 				IDs des Patienten (siehe Allgemeiner Leitfaden, Kapitel 6.3.1.2.2)
 			-->
 			<!-- Identifikation des Patienten im lokalen System -->
-			<id root="1.2.40.0.34.99.4613.3.2" extension="121212"
+			<id root="1.2.40.0.34.99.4613.3.2" extension="73232"
 				assigningAuthorityName="Amadeus Spital"/>
 
 			<!-- Sozialversicherungsnummer des Patienten	-->
-			<id root="1.2.40.0.10.1.4.3.1" extension="1111241261"
-				assigningAuthorityName="Österreichische Sozialversicherung"/>
+			<id root="1.2.40.0.10.1.4.3.1" extension="6932281524" assigningAuthorityName="Österreichische Sozialversicherung"/>
+
+			<!-- bPK -->
+            <id root="1.2.40.0.10.2.1.1.149" extension="/7dV7XrWsFuaFbGGZ3G3mMowHnI=" assigningAuthorityName="Österreichische Stammzahlenregisterbehörde"/>
 
 			<!--
 				Adresse des Patienten (siehe Allgemeiner Leitfaden, Kapitel 6.3.1.2.3)
 			-->
 			<addr use="HP">
-				<streetAddressLine>Musterstraße 13a</streetAddressLine>
-				<postalCode>7000</postalCode>
-				<city>Eisenstadt</city>
-				<state>Burgenland</state>
-				<country>AUT</country>
+				<streetName>Harleshaeuserstr.</streetName>
+                <houseNumber>30</houseNumber>
+                <postalCode>9853</postalCode>
+                <city>Hinterschiffl</city>
+                <country>AUT</country>
 			</addr>
-
-			<!--
-				Kontaktdaten des Patienten (siehe Allgemeiner Leitfaden, Kapitel 6.3.1.2.4)
-			-->
-			<telecom use="H" value="tel:+43.2682.40400"/>
-			<telecom use="MC" value="tel:+43.664.1234567"/>
-			<telecom value="mailto:musterfrau@provider.at"/>
 
 			<patient>
 
@@ -158,52 +153,21 @@
 					Name des Patienten (siehe Allgemeiner Leitfaden, Kapitel 6.3.1.2.5)
 				-->
 				<name>
-					<prefix qualifier="AC">Dr.</prefix>
-					<given>Maria</given>
-					<given>Johanna</given>
-					<family>Musterfrau</family>
-					<family qualifier="BR">VorDerHeirat</family>
-					<suffix qualifier="AC">BSc</suffix>
+					<prefix qualifier="AC">Dr.med.dent.</prefix>
+                    <given>Ludwiga</given>
+                    <given>Benedikt</given>
+                    <family>AGIWGerhardt ELGATest</family>
 				</name>
 
 				<!--
 					Geschlecht des Patienten (siehe Allgemeiner Leitfaden, Kapitel 6.3.1.2.6)
 				-->
-				<administrativeGenderCode code="F" displayName="Female"
-					codeSystem="2.16.840.1.113883.5.1" codeSystemName="HL7:AdministrativeGender"/>
+				<administrativeGenderCode code="F" displayName="Female" codeSystem="2.16.840.1.113883.5.1" codeSystemName="HL7:AdministrativeGender"/>
 
 				<!--
 					Geburtsdatum des Patienten (siehe Allgemeiner Leitfaden, Kapitel 6.3.1.2.7)
 				-->
-				<birthTime value="19611224"/>
-
-				<!--
-					Familienstand des Patienten  (siehe Allgemeiner Leitfaden, Kapitel 6.3.1.2.8)
-				-->
-				<maritalStatusCode code="M" displayName="Married" codeSystem="2.16.840.1.113883.5.2"
-					codeSystemName="HL7:MaritalStatus"/>
-
-				<!--
-					Religionszugehörigkeit des Patienten (siehe Allgemeiner Leitfaden, Kapitel 6.3.1.2.9)
-
-				 -->
-				<religiousAffiliationCode code="101" codeSystem="2.16.840.1.113883.2.16.1.4.1"
-					codeSystemName="HL7.AT:ReligionAustria" displayName="Römisch-Katholisch"/>
-
-				<!--
-					Geburtsort des Patienten (siehe Allgemeiner Leitfaden, Kapitel 6.3.1.2.14)
-				-->
-				<birthplace>
-					<place>
-						<addr>
-							<streetAddressLine>Musterstraße 23b</streetAddressLine>
-							<postalCode>8011</postalCode>
-							<city>Graz</city>
-							<state>Steiermark</state>
-							<country>AUT</country>
-						</addr>
-					</place>
-				</birthplace>
+				<birthTime value="19241228"/>
 			</patient>
 		</patientRole>
 	</recordTarget>
