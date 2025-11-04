@@ -1,0 +1,221 @@
+map "http://hl7.at/fhir/HL7ATCoreProfiles/4.0.1/StructureMap/at-cda-to-bundle" = "CdaToBundle"
+
+//
+// Mapping CDA2FHIR
+//
+
+conceptmap "cda-clinicaldocument-code-2-fhir-composition-type" {
+  prefix s = "http://loinc.org"
+  prefix t = "http://loinc.org"
+
+  s:"11502-2" == t:"26436-6"
+  s:"18725-2" == t:"18725-2"
+}
+
+conceptmap "cda-sdtc-statuscode-2-fhir-composition-status" {
+  prefix s = "http://terminology.hl7.org/CodeSystem/v3-ActStatus"
+  prefix t = "http://hl7.org/fhir/composition-status"
+
+  s:"active" == t:"preliminary"
+  s:"nullified" == t:"entered-in-error"
+}
+
+conceptmap "cda-sdtc-statuscode-2-fhir-diagnosticreport-status" {
+  prefix s = "http://terminology.hl7.org/CodeSystem/v3-ActStatus"
+  prefix t = "http://hl7.org/fhir/diagnostic-report-status"
+
+  s:"active" == t:"preliminary"
+  s:"nullified" == t:"entered-in-error"
+}
+
+// Mapping according to https://wiki.hl7.at/index.php/Geschlecht
+// nullFlavor "UNK" will be mapped by FML to "unknown"
+conceptmap "ELGAAdministrativeGenderFHIRGender" {
+  // TODO create proper conceptmap which is able to have multiple groups dealing with more than one source code system
+  prefix s = "https://termgit.elga.gv.at/ValueSet-elga-administrativegender"
+  prefix t = "http://hl7.org/fhir/administrative-gender"
+
+  s:  "F" == t: "female"
+  s:  "M" == t: "male"
+  s: "UN" == t: "other"
+  s:  "D" == t: "other"
+  s:  "I" == t: "other"
+  s:  "O" == t: "other"
+}
+
+conceptmap "act-status-2-observation-status" {
+  prefix s = "http://terminology.hl7.org/CodeSystem/v3-ActStatus"
+  prefix t = "http://hl7.org/fhir/observation-status"
+
+  s:"completed" == t:"final"
+  s:"active" == t:"preliminary"
+  s:"aborted" == t:"cancelled"
+}
+
+uses "http://hl7.org/cda/stds/core/StructureDefinition/ClinicalDocument" alias ClinicalDocument as source
+uses "http://hl7.org/cda/stds/core/StructureDefinition/Author" alias Author as source
+uses "http://hl7.org/cda/stds/core/StructureDefinition/AssignedAuthor" alias AssignedAuthor as source
+uses "http://hl7.org/cda/stds/core/StructureDefinition/AssignedEntity" alias AssignedEntity as source
+uses "http://hl7.org/cda/stds/core/StructureDefinition/AssociatedEntity" alias AssociatedEntity as source
+uses "http://hl7.org/cda/stds/core/StructureDefinition/CustodianOrganization" alias CustodianOrganization as source
+uses "http://hl7.org/cda/stds/core/StructureDefinition/Section" alias Section as source
+uses "http://hl7.org/cda/stds/core/StructureDefinition/PatientRole" alias PatientRole as source
+uses "http://hl7.org/cda/stds/core/StructureDefinition/StructuredBody" alias StructuredBody as source
+uses "http://hl7.org/cda/stds/core/StructureDefinition/Observation" alias CDAObservation as source
+uses "http://hl7.org/cda/stds/core/StructureDefinition/Performer2" alias Performer as source
+uses "http://hl7.org/cda/stds/core/StructureDefinition/Procedure" alias Procedure as source
+uses "http://hl7.org/cda/stds/core/StructureDefinition/Organizer" alias Organizer as source
+
+uses "http://hl7.org/fhir/4.3/StructureDefinition/Bundle" alias Bundle as target
+uses "http://hl7.org/fhir/4.3/StructureDefinition/Composition" alias Composition as target
+uses "http://hl7.org/fhir/4.3/StructureDefinition/Patient" alias Patient as target
+uses "http://hl7.org/fhir/4.3/StructureDefinition/Person" alias Person as target
+uses "http://hl7.org/fhir/4.3/StructureDefinition/Practitioner" alias Practitioner as target
+uses "http://hl7.org/fhir/4.3/StructureDefinition/PractitionerRole" alias PractitionerRole as target
+uses "http://hl7.org/fhir/4.3/StructureDefinition/Organization" alias Organization as target
+uses "http://hl7.org/fhir/4.3/StructureDefinition/DiagnosticReport" alias DiagnosticReport as target
+uses "http://hl7.org/fhir/4.3/StructureDefinition/ServiceRequest" alias ServiceRequest as target
+uses "http://hl7.org/fhir/4.3/StructureDefinition/Observation" alias Observation as target
+uses "http://hl7.org/fhir/4.3/StructureDefinition/Specimen" alias Specimen as target
+
+imports "http://hl7.at/fhir/HL7ATCoreProfiles/4.0.1/StructureMap/at-cda-to-fhir-types"
+
+
+// _________________________ Document Level Template  _________________________
+
+group CdaToFhirBundle(source cda : ClinicalDocument, target fhir_bundle : Bundle) {
+  cda ->
+    fhir_bundle.id = uuid(),
+    fhir_bundle.type = 'document',
+    fhir_bundle.meta as fhir_bundle_meta,
+    fhir_bundle_meta.profile = 'http://fhir.ehdsi.eu/laboratory/StructureDefinition/Bundle-lab-myhealtheu'
+    "FhirBundleMetadata";
+  // ClinicalDocument.id
+  cda.id -> fhir_bundle.identifier "identifier";
+  // ClinicalDocument.effectiveTime
+  cda.effectiveTime -> fhir_bundle.timestamp;
+
+  cda ->
+    // create the composition to have it as reference for later transformations
+    fhir_bundle.entry as fhir_bundle_entry_1,
+    fhir_bundle_entry_1.resource = create('Composition') as fhir_composition,
+    fhir_composition.id = uuid() as fhir_composition_uuid,
+    fhir_bundle_entry_1.fullUrl = append('urn:uuid:', fhir_composition_uuid),
+
+    // create the DiagnosticReport to have it as reference for later transformations
+    fhir_bundle.entry as fhir_bundle_entry_4,
+    fhir_bundle_entry_4.resource = create('DiagnosticReport') as fhir_diagnosticReport,
+    fhir_diagnosticReport.id = uuid() as fhir_diagnosticReport_id,
+    fhir_bundle_entry_4.fullUrl = append('urn:uuid:', fhir_diagnosticReport_id),
+
+    // create the patient to have it as reference for later transformations
+    fhir_bundle.entry as fhir_bundle_entry_2,
+    fhir_bundle_entry_2.resource = create('Patient') as fhir_patient,
+    fhir_patient.id = uuid() as fhir_patient_uuid,
+    fhir_bundle_entry_2.fullUrl = append('urn:uuid:', fhir_patient_uuid),
+
+    // create the ServiceRequest to have it as reference for later transformations
+    fhir_bundle.entry as fhir_bundle_entry_5,
+    fhir_bundle_entry_5.resource = create('ServiceRequest') as fhir_serviceRequest,
+    fhir_serviceRequest.id = uuid() as fhir_serviceRequest_id,
+    fhir_bundle_entry_5.fullUrl = append('urn:uuid:', fhir_serviceRequest_id),
+    fhir_serviceRequest.meta as fhir_serviceRequest_meta,
+    fhir_serviceRequest_meta.profile = 'http://fhir.ehdsi.eu/laboratory/StructureDefinition/ServiceRequest-lab-myhealtheu',
+
+    // create relation from Composition to ServiceRequest
+    fhir_composition.extension as fhir_composition_extenstion_01,
+    fhir_composition_extenstion_01.url = 'http://hl7.eu/fhir/StructureDefinition/composition-basedOn-order-or-requisition',
+    fhir_composition_extenstion_01.value = create('Reference') as fhir_diagnosticReport_composition_reference,
+    fhir_diagnosticReport_composition_reference.reference = append('urn:uuid:', fhir_serviceRequest_id),
+    fhir_diagnosticReport_composition_reference.type = 'ServiceRequest',
+
+    // create relation from Composition to Patient
+    fhir_composition.subject = create('Reference') as fhir_composition_subject_reference,
+    fhir_composition_subject_reference.reference = append('urn:uuid:', fhir_patient_uuid),
+    fhir_composition_subject_reference.type = 'Patient',
+
+    // create relation from Composition to DiagnosticReport
+    fhir_composition.extension as fhir_composition_extenstion_02,
+    fhir_composition_extenstion_02.url = 'http://hl7.eu/fhir/laboratory/StructureDefinition/composition-diagnosticReportReference',
+    fhir_composition_extenstion_02.value = create('Reference') as fhir_composition_diagnosticReport_reference,
+    fhir_composition_diagnosticReport_reference.reference = append('urn:uuid:', fhir_diagnosticReport_id),
+    fhir_composition_diagnosticReport_reference.type = 'DiagnosticReport',
+
+    // create relation from DiagnosticReport to Composition
+    fhir_diagnosticReport.extension as fhir_diagnosticReport_extension,
+    fhir_diagnosticReport_extension.url = 'http://hl7.org/fhir/5.0/StructureDefinition/extension-DiagnosticReport.composition',
+    fhir_diagnosticReport_extension.value = create('Reference') as fhir_diagnosticReport_composition_reference,
+    fhir_diagnosticReport_composition_reference.reference = append('urn:uuid:', fhir_composition_uuid),
+    fhir_diagnosticReport_composition_reference.type = 'Composition',
+
+    // create relation from DiagnosticReport to ServiceRequest
+    fhir_diagnosticReport.basedOn = create('Reference') as fhir_diagnosticReport_basedOn_reference,
+    fhir_diagnosticReport_basedOn_reference.reference = append('urn:uuid:', fhir_serviceRequest_id),
+    fhir_diagnosticReport_basedOn_reference.type = 'ServiceRequest',
+
+    // create relation from DiagnosticReport to Patient
+    fhir_diagnosticReport.subject = create('Reference') as fhir_diagnosticReport_subject_reference,
+    fhir_diagnosticReport_subject_reference.reference = append('urn:uuid:', fhir_patient_uuid),
+    fhir_diagnosticReport_subject_reference.type = 'Patient',
+
+    // create relation from ServiceRequest to Patient
+    fhir_serviceRequest.subject = create('Reference') as fhir_serviceRequest_subject_reference,
+    fhir_serviceRequest_subject_reference.reference = append('urn:uuid:', fhir_patient_uuid),
+    fhir_serviceRequest_subject_reference.type = 'Patient',
+
+    // PractitionerRole
+    fhir_bundle.entry as fhir_bundle_entry01,
+    fhir_bundle_entry01.resource = create('PractitionerRole') as fhir_practitionerRole,
+    fhir_practitionerRole.id = uuid() as fhir_practitionerRole_id,
+    fhir_bundle_entry01.fullUrl = append('urn:uuid:', fhir_practitionerRole_id)
+
+    then {
+      cda then CdaHeaderToFhirComposition(cda, fhir_composition, fhir_patient, fhir_diagnosticReport, fhir_serviceRequest, fhir_bundle) "CdaHeaderToFhirComposition";
+      cda then CdaHeaderToFhirDiagnosticReport(cda, fhir_diagnosticReport) "CdaHeaderToFhirDiagnosticReport";
+      // ClinicalDocument.component
+      cda.component as cda_component then {
+        // ClinicalDocument.component.structuredBody
+        cda_component.structuredBody as cda_structuredBody
+          then CdaToPractitionerRole(cda, fhir_practitionerRole, fhir_bundle),
+               CdaBodyToFhirComposition(cda, cda_structuredBody, fhir_composition, fhir_practitionerRole, fhir_patient, fhir_diagnosticReport, fhir_bundle);
+      };
+      // cda.component as component then {
+      //   component.structuredBody as structuredBody then {
+      //     structuredBody.component as component log 'component' then {
+      //       // component.section as srcSection where $this.code.empty() -> composition.section as tgtSection then ClinicalDocumentSection(cda, srcSection, patient, tgtSection, bundle);
+      //     } "component";
+      //   } "body";
+      // } "component";
+    }
+
+    "CdaToFhirBundle";
+}
+
+// _________________________ Header Level Templates _________________________
+
+group CdaHeaderToFhirComposition(source cda : ClinicalDocument, target fhir_composition : Composition, target fhir_patient: Patient, target fhir_diagnosticReport: DiagnosticReport, target fhir_serviceRequest: ServiceRequest, target fhir_bundle : Bundle) {
+  cda -> fhir_composition.meta as fhir_composition_meta,
+    fhir_composition_meta.profile = 'http://fhir.ehdsi.eu/laboratory/StructureDefinition/Composition-lab-myhealtheu'
+    "FhirCompositionProfile";
+
+  // ClinicalDocument.code
+  cda.code as cda_code then {
+    cda_code.code as code_code ->
+    fhir_composition.category as fhir_composition_category,
+    fhir_composition_category.coding = translate(code_code, '#cda-clinicaldocument-code-2-fhir-composition-type' , 'Coding') "code";
+  };
+
+  // ClinicalDocument.code.translation
+  cda.code as cda_code then {
+    // for CDA laboratory report translation is fixed to 11502-2 LOINC
+    cda_code.translation -> fhir_composition.type;
+    // in case CDA does not have translation the Composition.type will be explicitly set
+    cda_code where cda_code.translation.exists().not() ->
+      fhir_composition.type = create('CodeableConcept') as type_coding,
+      type_coding.coding = create('Coding') as coding_coding,
+      coding_coding.system = 'http://loinc.org',
+      coding_coding.code = '11502-2'
+      "CdaMissingCodeTranslationToFhirCompositionType";
+  };
+  // ClinicalDocument.title
+  cda.title as cda_title -> fhir_composition.title = (cda_title.xmlText);
