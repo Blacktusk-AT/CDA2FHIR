@@ -1,1 +1,133 @@
 // ToDo add FML to modularize various groups in the mapping
+
+/* 
+# Starting Point for mapping 
+### ANTLR 
+'''
+mapId
+	: 'map' url '=' identifier
+	;
+'''
+*/
+map "http://hl7.at/fhir/HL7ATCoreProfiles/4.0.1/StructureMap/at-cda-to-bundle" = "CdaToBundle"
+
+/*
+# Structure Definition References 
+## 1..* Sources from which mapping is performed 
+
+### ANTLR 
+'''
+structure
+	: 'uses' url structureAlias? 'as'  modelMode
+	;
+'''
+*/
+uses "http://hl7.org/cda/stds/core/StructureDefinition/ClinicalDocument" alias ClinicalDocument as source
+
+//## Target 1..* instances of this type are passed in and will be populated from source  
+uses "http://hl7.org/fhir/4.3/StructureDefinition/Bundle" alias Bundle as target
+
+/* 
+# Maps can be broken up into several files each containing 1..* groups 
+## * used as wildcard for input to import any maps  e.g. imports http://hl7.at/fhir/HL7ATCoreProfiles/4.0.1/StructureMap/*.map
+
+
+### ANTLR
+'''
+imports
+	: 'imports' url
+	;
+'''
+*/
+imports "http://hl7.at/fhir/HL7ATCoreProfiles/4.0.1/StructureMap/at-cda-to-fhir-types"
+
+// _________________________ Document Level Template  _________________________
+
+
+/*
+
+### ANTLR 
+First Group of Map which means it will invoke parser rule: structureMap: 
+'''
+structureMap 
+    : mapId structure* imports* const* group+ EOF
+    ;
+'''
+(Here we can see that each map SHALL have  1..* groups.) 
+Parser group rule: 
+group
+	: 'group' id parameters extends? typeMode? rules
+	;
+
+*/
+// 'group' id: CDAtoFhirBundle parameters(source cda : ClinicalDocument, target fhir_bundle Bundle) extends? typeMode? rules 
+group CdaToFhirBundle(source cda : ClinicalDocument, target fhir_bundle : Bundle) {
+
+  /*
+
+  ### ANTLR 
+  Parsing rule rules: Each 'group' SHALL contain 1..1 rules. 
+  rules starts with '{' and ends with '}'
+  Each rules can contain 0..* rule 
+
+  '''
+  rules
+    : '{' rule* '}'
+    ;
+  ''' 
+
+  Parsing rule rule: 
+  '''
+  rule
+ 	: ruleSources ('->' ruleTargets)? dependent? ruleName? ';'
+ 	; 
+  '''
+  Each parser rule SHALL have 1 rulesources, 0..1 '->' and ruleTargets , 0..1 dependent, 0..1 ruleName, each rule ends with ';' 
+  */
+
+
+// # Explanation of First FML Rule 
+  /*
+   '''
+  rule
+ 	: ruleSources ('->' ruleTargets)? dependent? ruleName? ';'
+ 	; 
+  '''
+
+  ruleSources: 
+  Each parser rule ruleSources SHALL contain 1..1 ruleSource, and 1..* ruleSources seperated by ','
+  ruleSources
+    : ruleSource (',' ruleSource)*
+    ;
+  Each Parser rule ruleSource SHALL contain 1..1 ruleContext 
+  ruleSource
+    :  ruleContext sourceType? sourceCardinality? sourceDefault? sourceListMode? alias? whereClause? checkClause? log?
+    ;
+  ruleContext
+	: identifier ('.' identifier)*
+	;
+  Each parser rule ruleContext SHALL contain 1..1 identifier, 1..* identifier seperated by .
+
+  */
+    /*
+    Logic Flow of "cda -> fhir_bundle.id 
+
+    grammer mapping; > 
+        structureMap > 
+            rule reference: mapId > structure > imports > group 
+            group> 
+                rule reference: id > parameters > extends > typeMode > rules
+                FML: id = CdaToFHirBundle > parameters=  
+
+        
+
+    
+    */
+    cda ->
+    fhir_bundle.id = uuid(),
+    fhir_bundle.type = 'document',
+    fhir_bundle.meta as fhir_bundle_meta,
+    fhir_bundle_meta.profile = 'http://fhir.ehdsi.eu/laboratory/StructureDefinition/Bundle-lab-myhealtheu'
+    "FhirBundleMetadata";
+
+}
