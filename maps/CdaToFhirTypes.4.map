@@ -748,16 +748,6 @@ group CdaPatientNameToFHIRPatientName(source cda_patient_name : PN, target fhir_
     cda_patient_name.family as cda_name_item_family -> 
       fhir_patient.name = create('HumanName') as fhir_humanName then {
 
-        cda_patient_name where (given.exists().not()) then {
-            cda_patient_name ->
-              fhir_humanName.given as fhir_humanName_given,
-              fhir_humanName_given.extension as fhir_given_extension,
-              fhir_given_extension.url = 'http://hl7.org/fhir/StructureDefinition/data-absent-reason',
-              fhir_given_extension.value = create('code') as fhir_given_extension_code,
-              fhir_given_extension_code.value = 'unknown'
-              "CdaPatientNameGivenExistsNotToHumanNameGivenExtension";
-          } "CdaNameNoGivenItem";
-
         // name.given
         cda_patient_name where (given.exists()) then {
           cda_patient_name.item as cda_name_item then {
@@ -775,6 +765,16 @@ group CdaPatientNameToFHIRPatientName(source cda_patient_name : PN, target fhir_
               } "CdaNameGivenToFhirNameGiven";
             } "CdaNameItem";
           } "CdaNameGivenItem";
+
+        cda_patient_name where (given.exists().not()) then {
+            cda_patient_name ->
+              fhir_humanName.given as fhir_humanName_given,
+              fhir_humanName_given.extension as fhir_given_extension,
+              fhir_given_extension.url = 'http://hl7.org/fhir/StructureDefinition/data-absent-reason',
+              fhir_given_extension.value = create('code') as fhir_given_extension_code,
+              fhir_given_extension_code.value = 'unknown'
+              "CdaPatientNameGivenExistsNotToHumanNameGivenExtension";
+          } "CdaNameNoGivenItem";
 
         // all other items
         cda_patient_name.item as cda_name_item then {
