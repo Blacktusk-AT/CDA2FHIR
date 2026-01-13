@@ -83,7 +83,7 @@ group ClinicalDocumentToBundle(source cda : ClinicalDocument, target fhir_patien
         fhir_composition_subject_reference.type = 'Patient'; 
 }
 
-group CdaHeaderToFhirComposition(source cda : ClinicalDocument, target fhir_patient : Patient, target fhir_practitionerRole : PractitionerRole, target fhir_composition : Composition, target fhir_bundle : Bundle){
+group CdaHeaderToFhirComposition(source cda : ClinicalDocument, target fhir_patient : Patient, target fhir_composition : Composition, target fhir_bundle : Bundle){
     // ClinicalDocument.code -> Composition.category 
     cda.code as cda_code then {
         cda_code.code as code_code ->

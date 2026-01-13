@@ -70,10 +70,10 @@ group CdaAteImpfToFhirBundle(source cda : ClinicalDocument, target fhir_bundle :
         fhir_bundle.entry as fhir_bundle_entry,
         fhir_bundle_entry.resource = create('Composition') as fhir_composition, 
         fhir_composition.id = uuid() as fhir_composition_id,
-        fhir_bundle_entry.fullUrl = append('urn:uuid:', fhir_composition_id) then LaboratoryReportToBundle(cda, fhir_patient, fhir_practitionerRole, fhir_composition, fhir_bundle);
+        fhir_bundle_entry.fullUrl = append('urn:uuid:', fhir_composition_id) then CdaeImpfToBundle(cda, fhir_patient, fhir_composition, fhir_bundle);
 }
 
-eImpfReportToBundle(source cda : ClinicalDocument, target fhir_patient : Patient, target fhir_composition : Composition, target fhir_bundle : Bundle){
+group CdaeImpfToBundle(source cda : ClinicalDocument, target fhir_patient : Patient, target fhir_composition : Composition, target fhir_bundle : Bundle) extends ClinicalDocumentToBundle{
     // CdaAtToBundle 
         // ClinicalDocument.id -> Bundle.identifier
         // ClinicalDocument.effectiveTime -> Bundle.timestamp 
@@ -82,7 +82,17 @@ eImpfReportToBundle(source cda : ClinicalDocument, target fhir_patient : Patient
         // ClinicalDocument.code.translation -> Composition.type 
         // ClinicalDocument.title -> Composition.title
         // ClinicalDocument.sdtc:statusCode -> Composition.status
+    // placeholder - if top level config is needed like in Lab Report
+    cda.title as cda_title -> fhir_composition.title = (cda_title.xmlText) then CdaeImpfHeaderToFhir(cda, fhir_patient, fhir_composition,fhir_bundle);
+} 
+
+group CdaeImpfHeaderToFhir(source cda : ClinicalDocument, target fhir_patient : Patient, target fhir_composition : Composition, target fhir_bundle : Bundle) extends CdaHeaderToFhirComposition{
+    // todo remove!
+    cda.title as cda_title -> fhir_composition.title = (cda_title.xmlText);
 }
+
+
+
 
 group CdaToFhirBundle(source cda: ClinicalDocument, target fhir_bundle: Bundle, target fhir_patient : Patient){
 

@@ -63,19 +63,19 @@ group CdaAtLabToFhirBundle(source cda : ClinicalDocument, target fhir_bundle : B
         fhir_bundle_entry.resource = create('Patient') as fhir_patient,
         fhir_patient.id = uuid() as fhir_patient_id, 
         fhir_bundle_entry.fullUrl = append('urn:uuid:',fhir_patient_id),
-        
-        fhir_bundle.entry as fhir_bundle_entry,
-        fhir_bundle_entry.resource = create('PractitionerRole') as fhir_practitionerRole,
-        fhir_practitionerRole.id = uuid() as fhir_practitionerRole_id, 
-        fhir_bundle_entry.fullUrl = append('urn:uuid:',fhir_practitionerRole_id),
+        // ToDo Check why practitioner is needed here ?! can it be created in LaboratoryReportToBundle ? 
+        // fhir_bundle.entry as fhir_bundle_entry,
+        // fhir_bundle_entry.resource = create('PractitionerRole') as fhir_practitionerRole,
+        // fhir_practitionerRole.id = uuid() as fhir_practitionerRole_id, 
+        // fhir_bundle_entry.fullUrl = append('urn:uuid:',fhir_practitionerRole_id),
 
         fhir_bundle.entry as fhir_bundle_entry,
         fhir_bundle_entry.resource = create('Composition') as fhir_composition, 
         fhir_composition.id = uuid() as fhir_composition_id,
-        fhir_bundle_entry.fullUrl = append('urn:uuid:', fhir_composition_id) then LaboratoryReportToBundle(cda, fhir_patient, fhir_practitionerRole, fhir_composition, fhir_bundle);
+        fhir_bundle_entry.fullUrl = append('urn:uuid:', fhir_composition_id) then LaboratoryReportToBundle(cda, fhir_patient, fhir_composition, fhir_bundle);
 }
 
-group LaboratoryReportToBundle(source cda : ClinicalDocument, target fhir_patient : Patient,target fhir_practitionerRole : PractitionerRole, target fhir_composition : Composition, target fhir_bundle : Bundle) extends ClinicalDocumentToBundle{
+group LaboratoryReportToBundle(source cda : ClinicalDocument, target fhir_patient : Patient, target fhir_composition : Composition, target fhir_bundle : Bundle) extends ClinicalDocumentToBundle{
     cda ->
     
         // create the DiagnosticReport to have it as reference for later transformations
