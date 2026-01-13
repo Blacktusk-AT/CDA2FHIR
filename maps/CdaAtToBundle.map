@@ -1,4 +1,4 @@
-map "http://hl7.at/fhir/HL7ATCoreProfiles/4.0.1/StructureMap/at-cda-to-bundle" = "CdaATToBundle"
+map "http://hl7.at/fhir/HL7ATCoreProfiles/4.0.1/StructureMap/cda-at-to-bundle" = "CdaATToBundle"
 // _________________________  metadataDeclaration _________________________ 
 
 //
@@ -58,6 +58,8 @@ uses "http://hl7.org/fhir/4.3/StructureDefinition/Specimen" alias Specimen as ta
 
 
 imports "http://hl7.at/fhir/HL7ATCoreProfiles/4.0.1/StructureMap/at-cda-to-fhir-types"
+imports "http://hl7.at/fhir/HL7ATCoreProfiles/4.0.1/StructureMap/cda-lab-to-bundle"
+imports "http://hl7.at/fhir/HL7ATCoreProfiles/4.0.1/StructureMap/cda-eimpf-to-bundle"
 
 
 // _________________________ Document Level Template  _________________________
@@ -67,8 +69,25 @@ group CdaAtToBundle(source cda : ClinicalDocument, target fhir_bundle : Bundle){
         fhir_bundle.id = uuid(),
         fhir_bundle.type = 'document';
     // ClinicalDocument.id -> Bundle.identifier
-    cda.id -> fhir_bundle.identifier "identifier";
-    
+    cda.id -> 
+        fhir_bundle.identifier "identifier";
+
+    cda -> 
+        fhir_bundle.entry as fhir_bundle_entry,
+        fhir_bundle_entry.resource = create('Patient') as fhir_patient,
+        fhir_patient.id = uuid() as fhir_patient_id, 
+        fhir_bundle_entry.fullUrl = append('urn:uuid:',fhir_patient_id),
+
+        fhir_bundle.entry as fhir_bundle_entry,
+        fhir_bundle_entry.resource = create('Composition') as fhir_composition, 
+        fhir_composition.id = uuid() as fhir_composition_id,
+        fhir_bundle_entry.fullUrl = append('urn:uuid:', fhir_composition_id); 
+
+    // Check which document is executed in pipelien and pass to the corresponding map file. 
+    cda.code as cda_code then {
+        cda_code.code as code_code where ($this = '11502-2' or $this = '18725-2') then CdaAtLabToFhirBundle(cda, fhir_patient, fhir_composition, fhir_bundle);
+        cda_code.code as code_code where ($this = '11369-6') then CdaAteImpfToFhirBundle(cda, fhir_patient, fhir_composition, fhir_bundle);
+    };  
 }
 
 group ClinicalDocumentToBundle(source cda : ClinicalDocument, target fhir_patient : Patient, target fhir_composition : Composition, target fhir_bundle : Bundle){
@@ -128,6 +147,7 @@ group CdaHeaderToFhirComposition(source cda : ClinicalDocument, target fhir_pati
 
     // ClinicalDocument cda.effectiveTime -> Composition.date
     cda.effectiveTime -> fhir_composition.date;
+
     // ClinicalDocument.effectiveTime -> Bundle.timestamp 
     cda.effectiveTime -> fhir_bundle.timestamp;
 }

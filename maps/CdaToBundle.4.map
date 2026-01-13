@@ -85,6 +85,11 @@ imports "http://hl7.at/fhir/HL7ATCoreProfiles/4.0.1/StructureMap/at-cda-to-fhir-
 
 // _________________________ Document Level Template  _________________________
 
+
+
+
+
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!! Depracted mapping see branch dev for actual code !!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
 group CdaToFhirBundle(source cda : ClinicalDocument, target fhir_bundle : Bundle) {
   cda ->
     fhir_bundle.id = uuid(),

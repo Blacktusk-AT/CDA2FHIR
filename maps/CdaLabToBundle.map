@@ -1,4 +1,4 @@
-map "http://hl7.at/fhir/HL7ATCoreProfiles/4.0.1/StructureMap/at-cda-to-bundle" = "CdaLabToBundle"
+map "http://hl7.at/fhir/HL7ATCoreProfiles/4.0.1/StructureMap/cda-lab-to-bundle" = "CdaLabToBundle"
 // _________________________  metadataDeclaration _________________________ 
 
 //
@@ -50,29 +50,20 @@ uses "http://hl7.org/fhir/4.3/StructureDefinition/Specimen" alias Specimen as ta
 
 
 imports "http://hl7.at/fhir/HL7ATCoreProfiles/4.0.1/StructureMap/at-cda-to-fhir-types"
-imports "http://hl7.at/fhir/HL7ATCoreProfiles/4.0.1/StructureMap/at-cda-to-bundle" = "CdaATToBundle"
+// imports "http://hl7.at/fhir/HL7ATCoreProfiles/4.0.1/StructureMap/cda-at-to-bundle"
 
 
-group CdaAtLabToFhirBundle(source cda : ClinicalDocument, target fhir_bundle : Bundle) extends CdaAtToBundle{
+group CdaAtLabToFhirBundle(source cda : ClinicalDocument, target fhir_patient : Patient, target fhir_composition : Composition, target fhir_bundle : Bundle){
 
     cda ->
         fhir_bundle.meta as fhir_bundle_meta,
-        fhir_bundle_meta.profile = 'http://fhir.ehdsi.eu/laboratory/StructureDefinition/Bundle-lab-myhealtheu',
+        fhir_bundle_meta.profile = 'http://fhir.ehdsi.eu/laboratory/StructureDefinition/Bundle-lab-myhealtheu' then LaboratoryReportToBundle(cda, fhir_patient, fhir_composition, fhir_bundle);
         
-        fhir_bundle.entry as fhir_bundle_entry,
-        fhir_bundle_entry.resource = create('Patient') as fhir_patient,
-        fhir_patient.id = uuid() as fhir_patient_id, 
-        fhir_bundle_entry.fullUrl = append('urn:uuid:',fhir_patient_id),
         // ToDo Check why practitioner is needed here ?! can it be created in LaboratoryReportToBundle ? 
         // fhir_bundle.entry as fhir_bundle_entry,
         // fhir_bundle_entry.resource = create('PractitionerRole') as fhir_practitionerRole,
         // fhir_practitionerRole.id = uuid() as fhir_practitionerRole_id, 
         // fhir_bundle_entry.fullUrl = append('urn:uuid:',fhir_practitionerRole_id),
-
-        fhir_bundle.entry as fhir_bundle_entry,
-        fhir_bundle_entry.resource = create('Composition') as fhir_composition, 
-        fhir_composition.id = uuid() as fhir_composition_id,
-        fhir_bundle_entry.fullUrl = append('urn:uuid:', fhir_composition_id) then LaboratoryReportToBundle(cda, fhir_patient, fhir_composition, fhir_bundle);
 }
 
 group LaboratoryReportToBundle(source cda : ClinicalDocument, target fhir_patient : Patient, target fhir_composition : Composition, target fhir_bundle : Bundle) extends ClinicalDocumentToBundle{
@@ -183,8 +174,12 @@ group CdaLaboratoryReportHeaderToDiagnosticReport(source cda : ClinicalDocument,
     cda.sdtcStatusCode as cda_statusCode where cda.sdtcStatusCode.exists() then {
         cda_statusCode.code as cda_code -> fhir_diagnosticReport.status = translate(cda_code, '#cda-sdtc-statuscode-2-fhir-diagnosticreport-status' , 'code');
     } "CdaStatusCodeToFhirCompositionStatusMapped";
-    cda where cda.sdtcStatusCode.exists().not() -> fhir_diagnosticReport.status = 'final' "CdaStatusCodeToFhirCompositionStatusFixed";
+
+    // ClinicalDocument.sdtc:statusCode -> DiagnosticReport.status = 'fianl'
+    cda where cda.sdtcStatusCode.exists().not() -> 
+        fhir_diagnosticReport.status = 'final' "CdaStatusCodeToFhirCompositionStatusFixed";
 
     // ClinicalDocument.effectiveTime -> DiagnosticReport.effective 
-    cda.effectiveTime as cda_effectiveTime -> fhir_diagnosticReport.effective = create('dateTime') as fhir_diagnosticReport_effective then TSDateTime(cda_effectiveTime, fhir_diagnosticReport_effective) "CdaEffectiveTimeToFhirDiagnosticReportEffective";
+    cda.effectiveTime as cda_effectiveTime -> 
+        fhir_diagnosticReport.effective = create('dateTime') as fhir_diagnosticReport_effective then TSDateTime(cda_effectiveTime, fhir_diagnosticReport_effective) "CdaEffectiveTimeToFhirDiagnosticReportEffective";
 }
