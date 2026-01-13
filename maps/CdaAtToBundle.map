@@ -68,8 +68,7 @@ group CdaAtToBundle(source cda : ClinicalDocument, target fhir_bundle : Bundle){
         fhir_bundle.type = 'document';
     // ClinicalDocument.id -> Bundle.identifier
     cda.id -> fhir_bundle.identifier "identifier";
-    // ClinicalDocument.effectiveTime -> Bundle.timestamp 
-    cda.effectiveTime -> fhir_bundle.timestamp;
+    
 }
 
 group ClinicalDocumentToBundle(source cda : ClinicalDocument, target fhir_patient : Patient, target fhir_composition : Composition, target fhir_bundle : Bundle){
@@ -84,6 +83,19 @@ group ClinicalDocumentToBundle(source cda : ClinicalDocument, target fhir_patien
 }
 
 group CdaHeaderToFhirComposition(source cda : ClinicalDocument, target fhir_patient : Patient, target fhir_composition : Composition, target fhir_bundle : Bundle){
+        // CdaAtToBundle 
+        // ClinicalDocument.id -> Bundle.identifier
+        // ClinicalDocument.effectiveTime -> Bundle.timestamp 
+    // CdaHeaderToFhirComposition
+        // ClinicalDocument.code -> Composition.category 
+        // ClinicalDocument.code.translation -> Composition.type 
+        // ClinicalDocument.title -> Composition.title
+        // ClinicalDocument.sdtc:statusCode -> Composition.status
+        // ClinicalDocument.hl7at:terminologyDate -> Composition.extension(http://hl7.at/fhir/HL7ATCoreProfiles/4.0.1/StructureDefinition/at-core-ext-composition-terminologyDate)
+    
+    
+    
+    
     // ClinicalDocument.code -> Composition.category 
     cda.code as cda_code then {
         cda_code.code as code_code ->
@@ -105,12 +117,19 @@ group CdaHeaderToFhirComposition(source cda : ClinicalDocument, target fhir_pati
     } "CdaStatusCodeToFhirCompositionStatusMapped";
     cda where cda.sdtcStatusCode.exists().not() -> fhir_composition.status = 'final' "CdaStatusCodeToFhirCompositionStatusFixed";
 
-    //ClinicalDocument.hl7at:terminologyDate
+    // ClinicalDocument.hl7at:terminologyDate -> Composition.extension(http://hl7.at/fhir/HL7ATCoreProfiles/4.0.1/StructureDefinition/at-core-ext-composition-terminologyDate)
     cda.terminologyDate as cda_terminologyDate -> 
         fhir_composition.extension as fhir_composition_terminologyDate_extension,
         fhir_composition_terminologyDate_extension.url = 'http://hl7.at/fhir/HL7ATCoreProfiles/4.0.1/StructureDefinition/at-core-ext-composition-terminologyDate',
         fhir_composition_terminologyDate_extension.value = create('dateTime') as fhir_composition_terminologyDate_dateTime then TSDate(cda_terminologyDate, fhir_composition_terminologyDate_dateTime);
-  
+ 
+    // ClinicalDocument.hl7at:practiceSettingCode -> Composition.category 
+    cda.practiceSettingCode -> fhir_composition.category;
+
+    // ClinicalDocument cda.effectiveTime -> Composition.date
+    cda.effectiveTime -> fhir_composition.date;
+    // ClinicalDocument.effectiveTime -> Bundle.timestamp 
+    cda.effectiveTime -> fhir_bundle.timestamp;
 }
 
 

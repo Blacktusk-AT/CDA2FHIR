@@ -74,15 +74,7 @@ group CdaAteImpfToFhirBundle(source cda : ClinicalDocument, target fhir_bundle :
 }
 
 group CdaeImpfToBundle(source cda : ClinicalDocument, target fhir_patient : Patient, target fhir_composition : Composition, target fhir_bundle : Bundle) extends ClinicalDocumentToBundle{
-    // CdaAtToBundle 
-        // ClinicalDocument.id -> Bundle.identifier
-        // ClinicalDocument.effectiveTime -> Bundle.timestamp 
-    // CdaHeaderToFhirComposition
-        // ClinicalDocument.code -> Composition.category 
-        // ClinicalDocument.code.translation -> Composition.type 
-        // ClinicalDocument.title -> Composition.title
-        // ClinicalDocument.sdtc:statusCode -> Composition.status
-    // placeholder - if top level config is needed like in Lab Report
+    
     cda then CdaeImpfHeaderToFhir(cda, fhir_patient, fhir_composition,fhir_bundle);
 } 
 
