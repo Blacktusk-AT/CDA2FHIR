@@ -47,7 +47,7 @@ imports "http://hl7.at/fhir/HL7ATCoreProfiles/4.0.1/StructureMap/at-cda-to-fhir-
 imports "http://hl7.at/fhir/HL7ATCoreProfiles/4.0.1/StructureMap/at-cda-to-bundle" = "CdaATToBundle"
 
 
-group CdaAtLabToFhirBundle(source cda : ClinicalDocument, target fhir_bundle : Bundle) extends CdaATToBundle{
+group CdaAtLabToFhirBundle(source cda : ClinicalDocument, target fhir_bundle : Bundle) extends CdaAtToBundle{
 
     cda ->
         fhir_bundle.meta as fhir_bundle_meta,

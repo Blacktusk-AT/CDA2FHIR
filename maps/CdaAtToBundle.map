@@ -55,7 +55,7 @@ imports "http://hl7.at/fhir/HL7ATCoreProfiles/4.0.1/StructureMap/at-cda-to-fhir-
 
 // _________________________ Document Level Template  _________________________
 
-group CdaATToBundle(source cda : ClinicalDocument, target fhir_bundle : Bundle){
+group CdaAtToBundle(source cda : ClinicalDocument, target fhir_bundle : Bundle){
     cda ->
         fhir_bundle.id = uuid(),
         fhir_bundle.type = 'document';
