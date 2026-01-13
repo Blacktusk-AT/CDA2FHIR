@@ -66,38 +66,18 @@ group CdaAteImpfToFhirBundle(source cda : ClinicalDocument, target fhir_bundle :
         fhir_bundle_entry.resource = create('Patient') as fhir_patient,
         fhir_patient.id = uuid() as fhir_patient_id, 
         fhir_bundle_entry.fullUrl = append('urn:uuid:',fhir_patient_id),
+
+        fhir_bundle.entry as fhir_bundle_entry,
+        fhir_bundle_entry.resource = create('Composition') as fhir_composition, 
+        fhir_composition.id = uuid() as fhir_composition_id,
+        fhir_bundle_entry.fullUrl = append('urn:uuid:', fhir_composition_id) then LaboratoryReportToBundle(cda, fhir_patient, fhir_practitionerRole, fhir_composition, fhir_bundle);
 }
 
-group CdaToFhirBundle(source cda: ClinicalDocument, target fhir_bundle: Bundle){
+eImpfReportToBundle(source cda : ClinicalDocument, target fhir_patient : Patient, target fhir_composition : Composition, target fhir_bundle : Bundle){
+    cda -> 
+}
 
-  // cda -> 
-  //   fhir_bundle.id = uuid(),
-  //   fhir_bundle.type = 'document',
-  //   fhir_bundle.meta as fhir_bundle_meta,
-  //   fhir_bundle_meta.profile = 'https://fhir.hl7.at/elga/aps/r4/StructureDefinition/at-aps-bundle' 
-  //   "FhirBundleMetadata";
-
-//cda.id -> fhir_bundle.identifier "identifier";
-cda.effectiveTime -> fhir_bundle.timestamp;
-cda.id -> fhir_bundle.identifier; 
-cda ->
-    // create the composition to have it as reference for later transformations
-    fhir_bundle.entry as fhir_bundle_entry_1,
-    fhir_bundle_entry_1.resource = create('Composition') as fhir_composition,
-    fhir_composition.id = uuid() as fhir_composition_uuid,
-    fhir_bundle_entry_1.fullUrl = append('urn:uuid:', fhir_composition_uuid),
-    // create the patient to have it as reference for later transformations
-    fhir_bundle.entry as fhir_bundle_entry_2,
-    fhir_bundle_entry_2.resource = create('Patient') as fhir_patient,
-    fhir_patient.id = uuid() as fhir_patient_uuid,
-    fhir_bundle_entry_2.fullUrl = append('urn:uuid:', fhir_patient_uuid),
-
-    // create relation from Composition to Patient
-    fhir_composition.subject = create('Reference') as fhir_composition_subject_reference,
-    fhir_composition_subject_reference.reference = append('urn:uuid:', fhir_patient_uuid),
-    fhir_composition_subject_reference.type = 'Patient';
-
-
+group CdaToFhirBundle(source cda: ClinicalDocument, target fhir_bundle: Bundle, target fhir_patient : Patient){
 
 cda.component as cda_component then {
     cda then  CdaHeaderToFhirComposition(cda, fhir_composition, fhir_patient, fhir_bundle);

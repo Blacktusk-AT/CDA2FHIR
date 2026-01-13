@@ -59,9 +59,9 @@ group CdaAtToBundle(source cda : ClinicalDocument, target fhir_bundle : Bundle){
     cda ->
         fhir_bundle.id = uuid(),
         fhir_bundle.type = 'document';
-    // ClinicalDocument.id
+    // ClinicalDocument.id -> Bundle.identifier
     cda.id -> fhir_bundle.identifier "identifier";
-    // ClinicalDocument.effectiveTime
+    // ClinicalDocument.effectiveTime -> Bundle.timestamp 
     cda.effectiveTime -> fhir_bundle.timestamp;
 }
 
@@ -77,24 +77,17 @@ group ClinicalDocumentToBundle(source cda : ClinicalDocument, target fhir_patien
 }
 
 group CdaHeaderToFhirComposition(source cda : ClinicalDocument, target fhir_patient : Patient, target fhir_practitionerRole : PractitionerRole, target fhir_composition : Composition, target fhir_bundle : Bundle){
-    // ClinicalDocument.code
+    // ClinicalDocument.code -> Composition.category 
     cda.code as cda_code then {
         cda_code.code as code_code ->
         fhir_composition.category as fhir_composition_category,
         fhir_composition_category.coding = translate(code_code, '#cda-clinicaldocument-code-2-fhir-composition-type' , 'Coding') "code";
         };
 
-    // ClinicalDocument.code.translation
+    // ClinicalDocument.code.translation -> Composition.type 
     cda.code as cda_code then {
         // for CDA laboratory report translation is fixed to 11502-2 LOINC
         cda_code.translation -> fhir_composition.type;
-        // in case CDA does not have translation the Composition.type will be explicitly set
-        cda_code where cda_code.translation.exists().not() ->
-        fhir_composition.type = create('CodeableConcept') as type_coding,
-        type_coding.coding = create('Coding') as coding_coding,
-        coding_coding.system = 'http://loinc.org',
-        coding_coding.code = '11502-2'
-        "CdaMissingCodeTranslationToFhirCompositionType";
     };
     // ClinicalDocument.title
     cda.title as cda_title -> fhir_composition.title = (cda_title.xmlText);
