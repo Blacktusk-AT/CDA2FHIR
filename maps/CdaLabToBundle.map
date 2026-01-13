@@ -131,22 +131,17 @@ group LaboratoryReportToBundle(source cda : ClinicalDocument, target fhir_patien
         // create relation from ServiceRequest to Patient
         fhir_serviceRequest.subject = create('Reference') as fhir_serviceRequest_subject_reference,
         fhir_serviceRequest_subject_reference.reference = append('urn:uuid:', fhir_patient_id),
-        fhir_serviceRequest_subject_reference.type = 'Patient' then CdaLaboratoryReportHeaderToFhirComposition(cda, fhir_patient, fhir_diagnosticReport, fhir_serviceRequest, fhir_composition, fhir_bundle);
-
+        fhir_serviceRequest_subject_reference.type = 'Patient' then {
+            cda then CdaLaboratoryReportHeaderToFhirComposition(cda, fhir_patient, fhir_serviceRequest, fhir_composition, fhir_bundle) "CdaHeaderToFhirComposition";
+            cda then CdaLaboratoryReportHeaderToDiagnosticReport(cda, fhir_diagnosticReport) "CdaHeaderToFhirDiagnosticReport";
+        }; 
 }
 
-group CdaLaboratoryReportHeaderToFhirComposition(source cda : ClinicalDocument, target fhir_patient : Patient, target fhir_diagnosticReport : DiagnosticReport, target fhir_serviceRequest : ServiceRequest, target fhir_composition : Composition, target fhir_bundle : Bundle) extends CdaHeaderToFhirComposition{
+group CdaLaboratoryReportHeaderToFhirComposition(source cda : ClinicalDocument, target fhir_patient : Patient, target fhir_serviceRequest : ServiceRequest, target fhir_composition : Composition, target fhir_bundle : Bundle) extends CdaHeaderToFhirComposition{
      cda -> 
         fhir_composition.meta as fhir_composition_meta,
         fhir_composition_meta.profile = 'http://fhir.ehdsi.eu/laboratory/StructureDefinition/Composition-lab-myhealtheu'
         "FhirCompositionProfile";
-
-    // ClinicalDocument.code
-    cda.code as cda_code then {
-        cda_code.code as code_code ->
-        fhir_diagnosticReport.category as fhir_diagnosticReport_category,
-        fhir_diagnosticReport_category.coding = translate(code_code, '#cda-clinicaldocument-code-2-fhir-composition-type' , 'Coding') "code";
-    };
     
     // ClinicalDocument.code.translation -> Composition.type
     cda.code as cda_code then {
@@ -162,7 +157,17 @@ group CdaLaboratoryReportHeaderToFhirComposition(source cda : ClinicalDocument, 
     
 }   
 
-group CdaLaboratoryReportHeaderToDiagnosticReport(){
+group CdaLaboratoryReportHeaderToDiagnosticReport(source cda : ClinicalDocument, target fhir_diagnosticReport: DiagnosticReport){
+    cda -> 
+        fhir_diagnosticReport.meta as fhir_diagnosticReport_meta,
+        fhir_diagnosticReport_meta.profile = 'http://fhir.ehdsi.eu/laboratory/StructureDefinition/DiagnosticReport-lab-myhealtheu' "FhirDiagnosticReportProfile";
+
+    // ClinicalDocument.code -> DiagnosticReport.category 
+    cda.code as cda_code then {
+        cda_code.code as code_code ->
+        fhir_diagnosticReport.category as fhir_diagnosticReport_category,
+        fhir_diagnosticReport_category.coding = translate(code_code, '#cda-clinicaldocument-code-2-fhir-composition-type' , 'Coding') "code";
+    };
 
     // ClinicalDocument.code.translation -> DiagnosticReport.code
     cda.code as cda_code then {
