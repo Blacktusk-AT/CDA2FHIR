@@ -83,12 +83,12 @@ group CdaeImpfToBundle(source cda : ClinicalDocument, target fhir_patient : Pati
         // ClinicalDocument.title -> Composition.title
         // ClinicalDocument.sdtc:statusCode -> Composition.status
     // placeholder - if top level config is needed like in Lab Report
-    cda.title as cda_title -> fhir_composition.title = (cda_title.xmlText) then CdaeImpfHeaderToFhir(cda, fhir_patient, fhir_composition,fhir_bundle);
+    cda then CdaeImpfHeaderToFhir(cda, fhir_patient, fhir_composition,fhir_bundle);
 } 
 
 group CdaeImpfHeaderToFhir(source cda : ClinicalDocument, target fhir_patient : Patient, target fhir_composition : Composition, target fhir_bundle : Bundle) extends CdaHeaderToFhirComposition{
     // todo remove!
-    cda.title as cda_title -> fhir_composition.title = (cda_title.xmlText);
+    // cda.title as cda_title -> fhir_composition.title = (cda_title.xmlText);
 }
 
 
