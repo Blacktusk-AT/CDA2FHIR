@@ -74,7 +74,14 @@ group CdaAteImpfToFhirBundle(source cda : ClinicalDocument, target fhir_bundle :
 }
 
 eImpfReportToBundle(source cda : ClinicalDocument, target fhir_patient : Patient, target fhir_composition : Composition, target fhir_bundle : Bundle){
-    cda -> 
+    // CdaAtToBundle 
+        // ClinicalDocument.id -> Bundle.identifier
+        // ClinicalDocument.effectiveTime -> Bundle.timestamp 
+    // CdaHeaderToFhirComposition
+        // ClinicalDocument.code -> Composition.category 
+        // ClinicalDocument.code.translation -> Composition.type 
+        // ClinicalDocument.title -> Composition.title
+        // ClinicalDocument.sdtc:statusCode -> Composition.status
 }
 
 group CdaToFhirBundle(source cda: ClinicalDocument, target fhir_bundle: Bundle, target fhir_patient : Patient){

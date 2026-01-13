@@ -8,7 +8,13 @@ map "http://hl7.at/fhir/HL7ATCoreProfiles/4.0.1/StructureMap/at-cda-to-bundle" =
 
 
 // _________________________  conceptMapDeclaration _________________________ 
+conceptmap "cda-sdtc-statuscode-2-fhir-diagnosticreport-status" {
+  prefix s = "http://terminology.hl7.org/CodeSystem/v3-ActStatus"
+  prefix t = "http://hl7.org/fhir/diagnostic-report-status"
 
+  s:"active" == t:"preliminary"
+  s:"nullified" == t:"entered-in-error"
+}
 
 
 
@@ -161,4 +167,9 @@ group CdaLaboratoryReportHeaderToFhirComposition(source cda : ClinicalDocument, 
         
         ;
     };
+    // ClinicalDocument.sdtc:statusCode -> DiagnosticReport.status 
+    cda.sdtcStatusCode as cda_statusCode where cda.sdtcStatusCode.exists() then {
+        cda_statusCode.code as cda_code -> fhir_diagnosticReport.status = translate(cda_code, '#cda-sdtc-statuscode-2-fhir-diagnosticreport-status' , 'code');
+    } "CdaStatusCodeToFhirCompositionStatusMapped";
+    cda where cda.sdtcStatusCode.exists().not() -> fhir_diagnosticReport.status = 'final' "CdaStatusCodeToFhirCompositionStatusFixed";
 }        

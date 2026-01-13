@@ -17,6 +17,13 @@ conceptmap "cda-clinicaldocument-code-2-fhir-composition-type" {
   s: "11369-6" == t: "11369-6" //History of Immunization
 }
 
+conceptmap "cda-sdtc-statuscode-2-fhir-composition-status" {
+  prefix s = "http://terminology.hl7.org/CodeSystem/v3-ActStatus"
+  prefix t = "http://hl7.org/fhir/composition-status"
+
+  s:"active" == t:"preliminary"
+  s:"nullified" == t:"entered-in-error"
+}
 
 
 // _________________________ structureDeclaration _________________________
@@ -86,13 +93,13 @@ group CdaHeaderToFhirComposition(source cda : ClinicalDocument, target fhir_pati
 
     // ClinicalDocument.code.translation -> Composition.type 
     cda.code as cda_code then {
-        // for CDA laboratory report translation is fixed to 11502-2 LOINC
         cda_code.translation -> fhir_composition.type;
     };
-    // ClinicalDocument.title
+
+    // ClinicalDocument.title -> Composition.title
     cda.title as cda_title -> fhir_composition.title = (cda_title.xmlText);
 
-    // ClinicalDocument.sdtc:statusCode
+    // ClinicalDocument.sdtc:statusCode -> Composition.status 
     cda.sdtcStatusCode as cda_statusCode where cda.sdtcStatusCode.exists() then {
         cda_statusCode.code as cda_code -> fhir_composition.status = translate(cda_code, '#cda-sdtc-statuscode-2-fhir-composition-status' , 'code');
     } "CdaStatusCodeToFhirCompositionStatusMapped";
@@ -105,3 +112,13 @@ group CdaHeaderToFhirComposition(source cda : ClinicalDocument, target fhir_pati
         fhir_composition_terminologyDate_extension.value = create('dateTime') as fhir_composition_terminologyDate_dateTime then TSDate(cda_terminologyDate, fhir_composition_terminologyDate_dateTime);
   
 }
+
+
+// ToDo
+
+/*
+Figure out: 
+- fml layout 
+- documentation of FML 
+
+*/
