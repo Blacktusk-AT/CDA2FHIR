@@ -12,8 +12,9 @@ conceptmap "cda-clinicaldocument-code-2-fhir-composition-type" {
   prefix s = "http://loinc.org"
   prefix t = "http://loinc.org"
 
-  s:"11502-2" == t:"26436-6"
-  s:"18725-2" == t:"18725-2"
+  s:"11502-2" == t:"26436-6" // Laboratory Studies (set) 
+  s:"18725-2" == t:"18725-2" // Microbiology studies (set)
+  s: "11369-6" == t: "11369-6" //History of Immunization
 }
 
 

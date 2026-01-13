@@ -134,4 +134,24 @@ group CdaLaboratoryReportHeaderToFhirComposition(source cda : ClinicalDocument, 
         fhir_composition.meta as fhir_composition_meta,
         fhir_composition_meta.profile = 'http://fhir.ehdsi.eu/laboratory/StructureDefinition/Composition-lab-myhealtheu'
         "FhirCompositionProfile";
+
+    // ClinicalDocument.code
+    cda.code as cda_code then {
+        cda_code.code as code_code ->
+        fhir_diagnosticReport.category as fhir_diagnosticReport_category,
+        fhir_diagnosticReport_category.coding = translate(code_code, '#cda-clinicaldocument-code-2-fhir-composition-type' , 'Coding') "code";
+    };
+    
+    // ClinicalDocument.code.translation
+    cda.code as cda_code then {
+        // for CDA laboratory report translation is fixed to 11502-2 LOINC
+        cda_code.translation -> fhir_diagnosticReport.code;
+        // in case CDA does not have translation the DiagnosticReport.code will be explicitly set
+        cda_code where cda_code.translation.exists().not() ->
+            fhir_diagnosticReport.code = create('CodeableConcept') as code_coding,
+            code_coding.coding = create('Coding') as coding_coding,
+            coding_coding.system = 'http://loinc.org',
+            coding_coding.code = '11502-2'
+            "CdaMissingCodeTranslationToFhirCompositionType";
+    };
 }
