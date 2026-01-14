@@ -182,4 +182,18 @@ group CdaLaboratoryReportHeaderToDiagnosticReport(source cda : ClinicalDocument,
     // ClinicalDocument.effectiveTime -> DiagnosticReport.effective 
     cda.effectiveTime as cda_effectiveTime -> 
         fhir_diagnosticReport.effective = create('dateTime') as fhir_diagnosticReport_effective then TSDateTime(cda_effectiveTime, fhir_diagnosticReport_effective) "CdaEffectiveTimeToFhirDiagnosticReportEffective";
+    
+    // 1..1 ClinicalDocument.setId -> DiagnosticReport.identifier
+    cda.setId -> fhir_diagnosticReport.identifier;
 }
+
+
+group CdaLabPatientRoleToFhirPatient(source cda: ClinicalDocument, source cda_patientRole : PatientRole, target fhir_patient : Patient, target fhir_bundle : Bundle) {
+
+    cda_patientRole ->
+        fhir_patient.meta as fhir_patient_meta,
+        fhir_patient_meta.profile = 'http://fhir.ehdsi.eu/laboratory/StructureDefinition/Patient-lab-myhealtheu'
+        "FhirPatientEuLab";
+  } 
+
+
