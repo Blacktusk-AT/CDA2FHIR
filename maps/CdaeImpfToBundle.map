@@ -91,6 +91,11 @@ group CdaeImpfHeaderToFhir(source cda : ClinicalDocument, target fhir_patient : 
         cda_recordTarget.patientRole as cda_patientRole then CdaAPSPatientRoleToFhirPatient(cda, cda_patientRole, fhir_patient, fhir_bundle);
     } "CdaRecordTargetToFhirPatient";
 
+    // 1..1 ClinicalDocument.documentationOf -> Composition.event 
+    cda.documentationOf as cda_documentationOf then CdaAtServiceEventToCompositionEvent(cda_documentationOf,fhir_composition, fhir_bundle);
+    };
+
+
 }
 // Mapping for AT Patient that every FHIR Resource in the context of Immunization should have 
 group CdaeImpfPatientRoleToFhirPatient(source cda : ClinicalDocument, source cda_patientRole : PatientRole, target fhir_patient : Patient, target fhir_bundle : Bundle) extends CdaAtPatientRoleToFhirPatient {

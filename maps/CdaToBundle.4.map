@@ -246,29 +246,6 @@ group CdaHeaderToFhirComposition(source cda : ClinicalDocument, target fhir_comp
     cda_recordTarget.patientRole as cda_patientRole then CdaPatientRoleToFhirPatient(cda, cda_patientRole, fhir_patient, fhir_bundle) "CdaPatientRoleToFhirPatient";
   } "CdaRecordTargetToFhirPatient";
 
-  // ClinicalDocument.author (as person)
-  cda.author as cda_author where $this.assignedAuthor.assignedPerson.exists() ->
-    // create the PractitionerRole in order to capture the author.functionCode
-    fhir_bundle.entry as fhir_bundle_entry,
-    fhir_bundle_entry.resource = create('PractitionerRole') as fhir_practitionerRole,
-    fhir_practitionerRole.id = uuid() as fhir_practitionerRole_id,
-    fhir_bundle_entry.fullUrl = append('urn:uuid:', fhir_practitionerRole_id),
-    fhir_composition.author = create('Reference') as fhir_composition_author_reference,
-    fhir_composition_author_reference.reference = append('urn:uuid:', fhir_practitionerRole_id),
-    fhir_composition_author_reference.type = 'PractitionerRole' then
-    CdaAuthorToFhirPractitionerRole(cda_author, fhir_practitionerRole, fhir_bundle);
-
-  // ClinicalDocument.author (as device)
-  cda.author as cda_author where $this.assignedAuthor.assignedAuthoringDevice.exists() ->
-    // create the Device
-    fhir_bundle.entry as fhir_bundle_entry,
-    fhir_bundle_entry.resource = create('Device') as fhir_device,
-    fhir_device.id = uuid() as fhir_device_id,
-    fhir_bundle_entry.fullUrl = append('urn:uuid:', fhir_device_id),
-    fhir_composition.author = create('Reference') as fhir_composition_author_reference,
-    fhir_composition_author_reference.reference = append('urn:uuid:', fhir_device_id),
-    fhir_composition_author_reference.type = 'Device' then
-    CdaAuthorToFhirDevice(cda_author, fhir_device, fhir_bundle);
 
   // ClinicalDocument.dataEnterer[hl7:templateId [@root='1.2.40.0.34.6.0.11.1.22'] or [@root='1.2.40.0.34.11.20003']]
   cda.dataEnterer as cda_dataEnterer then {
@@ -290,35 +267,7 @@ group CdaHeaderToFhirComposition(source cda : ClinicalDocument, target fhir_comp
         performer_function_coding.code = 'ENT' then CdaAssignedEntityToFhirPractitionerRole(cda_assignedEntity, fhir_practitionerRole, fhir_bundle);
     };
     
-  // ClinicalDocument.custodian
-  cda.custodian as cda_custodian then {
-    // ClinicalDocument.custodian.assignedCustodian
-    cda_custodian.assignedCustodian as cda_assignedCustodian then {
-      // ClinicalDocument.custodian.assignedCustodian.representedCustodianOrganization
-      cda_assignedCustodian.representedCustodianOrganization as cda_representedCustodianOrganization ->
-        // create the Organization
-        fhir_bundle.entry as fhir_bundle_entry,
-        fhir_bundle_entry.resource = create('Organization') as fhir_custodian_organization,
-        fhir_custodian_organization.id = uuid() as fhir_custodian_organization_id,
-        fhir_bundle_entry.fullUrl = append('urn:uuid:', fhir_custodian_organization_id),
-        fhir_composition.custodian = create('Reference') as fhir_composition_custodian_reference,
-        fhir_composition_custodian_reference.reference = append('urn:uuid:', fhir_custodian_organization_id),
-        fhir_composition_custodian_reference.type = 'Organization' then {
-          // ClinicalDocument.custodian.assignedCustodian.representedCustodianOrganization.id
-          cda_representedCustodianOrganization.id -> fhir_custodian_organization.identifier;
-          // ClinicalDocument.custodian.assignedCustodian.representedCustodianOrganization.name
-          cda_representedCustodianOrganization.name -> fhir_custodian_organization.name;
-          // ClinicalDocument.custodian.assignedCustodian.representedCustodianOrganization.telecom
-          cda_representedCustodianOrganization.telecom -> fhir_custodian_organization.telecom;
-          // ClinicalDocument.custodian.assignedCustodian.representedCustodianOrganization.addr
-          // cda_representedCustodianOrganization.addr as cda_custodian_addr ->
-          //   fhir_custodian_organization.address = create('Address') as fhir_custodian_address then
-          //   CdaAdressCompilationToFhirAustrianAddress(cda_custodian_addr, fhir_custodian_address)
-          //   "CdaCustodianAddressToFhirCustodianAustrianAddress";
-          cda_representedCustodianOrganization.addr -> fhir_custodian_organization.address;
-        };
-    };
-  };
+  
   
   // ClinicalDocument.informationRecipient
   cda.informationRecipient as cda_informationRecipient then {
@@ -816,20 +765,7 @@ group CdaHeaderToFhirComposition(source cda : ClinicalDocument, target fhir_comp
     };
   };
 
-  // ClinicalDocument.relatedDocument
-  cda.relatedDocument as cda_relatedDocument then {
-    // ClinicalDocument.relatedDocument.parentDocument
-    cda_relatedDocument.parentDocument as cda_parentDocument ->
-      fhir_composition.relatesTo as fhir_composition_relatesTo then {
-        // ClinicalDocument.relatedDocument.typeCode
-        // in Laboratory this is constrained to RPLC -> replaces
-        cda_relatedDocument.typeCode -> fhir_composition_relatesTo.code = 'replaces' "CdaParentDocumentTypeCodeToFhirRelatesToCode";
-        //  ClinicalDocument.relatedDocument.parentDocument.id
-        cda_parentDocument.id as cda_parentDocument_id ->
-          fhir_composition_relatesTo.target = create('Identifier') as fhir_target_identifier
-          then II(cda_parentDocument_id, fhir_target_identifier);
-      };
-  };
+  
 
   // ClinicalDocument.componentOf
   cda.componentOf as cda_componentOf then {

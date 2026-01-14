@@ -205,6 +205,56 @@ group CdaAtHeaderToComposition (source cda : ClinicalDocument, target fhir_patie
         fhir_composition_author_reference.reference = append('urn:uuid:', fhir_device_id),
         fhir_composition_author_reference.type = 'Device' then
         CdaAtAuthorToFhirDevice(cda_author, fhir_device, fhir_bundle);
+    
+    // ClinicalDocument.custodian
+    cda.custodian as cda_custodian then {
+        // ClinicalDocument.custodian.assignedCustodian
+        cda_custodian.assignedCustodian as cda_assignedCustodian then {
+        // ClinicalDocument.custodian.assignedCustodian.representedCustodianOrganization
+        cda_assignedCustodian.representedCustodianOrganization as cda_representedCustodianOrganization ->
+            // create the Organization
+            fhir_bundle.entry as fhir_bundle_entry,
+            fhir_bundle_entry.resource = create('Organization') as fhir_custodian_organization,
+            fhir_custodian_organization.id = uuid() as fhir_custodian_organization_id,
+            fhir_bundle_entry.fullUrl = append('urn:uuid:', fhir_custodian_organization_id),
+            fhir_composition.custodian = create('Reference') as fhir_composition_custodian_reference,
+            fhir_composition_custodian_reference.reference = append('urn:uuid:', fhir_custodian_organization_id),
+            fhir_composition_custodian_reference.type = 'Organization' then {
+            // ClinicalDocument.custodian.assignedCustodian.representedCustodianOrganization.id
+            cda_representedCustodianOrganization.id -> fhir_custodian_organization.identifier;
+            // ClinicalDocument.custodian.assignedCustodian.representedCustodianOrganization.name
+            cda_representedCustodianOrganization.name -> fhir_custodian_organization.name;
+            // ClinicalDocument.custodian.assignedCustodian.representedCustodianOrganization.telecom
+            cda_representedCustodianOrganization.telecom -> fhir_custodian_organization.telecom;
+            // ClinicalDocument.custodian.assignedCustodian.representedCustodianOrganization.addr
+            // cda_representedCustodianOrganization.addr as cda_custodian_addr ->
+            //   fhir_custodian_organization.address = create('Address') as fhir_custodian_address then
+            //   CdaAdressCompilationToFhirAustrianAddress(cda_custodian_addr, fhir_custodian_address)
+            //   "CdaCustodianAddressToFhirCustodianAustrianAddress";
+            cda_representedCustodianOrganization.addr -> fhir_custodian_organization.address;
+            };
+        };
+    };
+
+
+
+
+
+
+    // ClinicalDocument.relatedDocument
+    cda.relatedDocument as cda_relatedDocument then {
+        // ClinicalDocument.relatedDocument.parentDocument
+        cda_relatedDocument.parentDocument as cda_parentDocument ->
+        fhir_composition.relatesTo as fhir_composition_relatesTo then {
+            // ClinicalDocument.relatedDocument.typeCode
+            // in Laboratory this is constrained to RPLC -> replaces
+            cda_relatedDocument.typeCode -> fhir_composition_relatesTo.code = 'replaces' "CdaParentDocumentTypeCodeToFhirRelatesToCode";
+            //  ClinicalDocument.relatedDocument.parentDocument.id
+            cda_parentDocument.id as cda_parentDocument_id ->
+            fhir_composition_relatesTo.target = create('Identifier') as fhir_target_identifier
+            then II(cda_parentDocument_id, fhir_target_identifier);
+        };
+    };
 }
 
 // General Austrian Patient Mapping 
@@ -542,6 +592,33 @@ group CdaAtAuthorToFhirDevice(source cda_author : Author, target fhir_device : D
         fhir_device_owner.type = 'Organization' then
         CdaOrganizationCompilationToFhirOrganization(cda_representedOrganization, fhir_organization);
     };
+}
+
+
+
+group CdaAtServiceEventToCompositionEvent(source cda_documentationOf : DocumentationOf, target  fhir_composition : Composition, target fhir_bundle : Bundle){
+
+        cda_documentationOf.serviceEvent as cda_documentationOf_serviceEvent ->
+        fhir_composition.event as fhir_composition_event then {
+
+        // ClinicalDocument.documentationOf.serviceEvent.id
+        // TODO Extension has to be specified in AT Lab IG
+        cda_documentationOf_serviceEvent.id as serviceEvent_id then {
+            serviceEvent_id.root as serviceEvent_id_root ->
+            fhir_composition_event.extension as fhir_composition_event_extension,
+            fhir_composition_event_extension.url = 'https://fhir.hl7.at/elga/lab/r4/StructureDefinition/at-lab-ext-composition-eventId',
+            fhir_composition_event_extension.value = create('oid') as fhir_composition_event_extension_oid,
+            fhir_composition_event_extension_oid.value = append('urn:oid:', serviceEvent_id_root)
+            "CdaServiceEventIdToFhirEventIdExtension";
+        } "CdaServiceEventIdToFhirEventId";
+
+        // ClinicalDocument.documentationOf.serviceEvent.code
+        cda_documentationOf_serviceEvent.code -> fhir_composition_event.code;
+        // ClinicalDocument.documentationOf.serviceEvent.effectiveTime
+        cda_documentationOf_serviceEvent.effectiveTime -> fhir_composition_event.period;
+        // ClinicalDocument.documentationOf.serviceEvent.performer
+        // TODO based on analysis of sample reports currently not required
+        };  
 }
 
 // ToDo
