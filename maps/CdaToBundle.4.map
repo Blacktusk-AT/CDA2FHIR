@@ -28,20 +28,7 @@ conceptmap "cda-sdtc-statuscode-2-fhir-diagnosticreport-status" {
   s:"nullified" == t:"entered-in-error"
 }
 
-// Mapping according to https://wiki.hl7.at/index.php/Geschlecht
-// nullFlavor "UNK" will be mapped by FML to "unknown"
-conceptmap "ELGAAdministrativeGenderFHIRGender" {
-  // TODO create proper conceptmap which is able to have multiple groups dealing with more than one source code system
-  prefix s = "https://termgit.elga.gv.at/ValueSet-elga-administrativegender"
-  prefix t = "http://hl7.org/fhir/administrative-gender"
 
-  s:  "F" == t: "female"
-  s:  "M" == t: "male"
-  s: "UN" == t: "other"
-  s:  "D" == t: "other"
-  s:  "I" == t: "other"
-  s:  "O" == t: "other"
-}
 
 conceptmap "act-status-2-observation-status" {
   prefix s = "http://terminology.hl7.org/CodeSystem/v3-ActStatus"

@@ -25,6 +25,20 @@ conceptmap "cda-sdtc-statuscode-2-fhir-composition-status" {
   s:"nullified" == t:"entered-in-error"
 }
 
+// Mapping according to https://wiki.hl7.at/index.php/Geschlecht
+// nullFlavor "UNK" will be mapped by FML to "unknown"
+conceptmap "ELGAAdministrativeGenderFHIRGender" {
+  // TODO create proper conceptmap which is able to have multiple groups dealing with more than one source code system
+  prefix s = "https://termgit.elga.gv.at/ValueSet-elga-administrativegender"
+  prefix t = "http://hl7.org/fhir/administrative-gender"
+
+  s:  "F" == t: "female"
+  s:  "M" == t: "male"
+  s: "UN" == t: "other"
+  s:  "D" == t: "other"
+  s:  "I" == t: "other"
+  s:  "O" == t: "other"
+}
 
 // _________________________ structureDeclaration _________________________
 
@@ -169,19 +183,9 @@ group CdaHeaderToFhirComposition(source cda : ClinicalDocument, target fhir_pati
         "CdaVersionNumberToFhirVersionNumber";
     };
 
-
-    // 1..1 ClinicalDocument.recordTarget -> Patient
-    cda.recordTarget as cda_recordTarget then {
-        // ClinicalDocument.recordTarget.patientRole
-        // main map file controlls flow 
-        
-        
-        // if eImpf and if APS -> CdaAPSPatientRoleToFhirPatient 
-        cda_recordTarget.patientRole as cda_patientRole then CdaAPSPatientRoleToFhirPatient(cda, cda_patientRole, fhir_patient, fhir_bundle) "CdaPatientRoleToFhirPatient";
-    } "CdaRecordTargetToFhirPatient";
-
 }
 
+// General Austrian Patient Mapping 
 group CdaPatientRoleToFhirPatient(source cda: ClinicalDocument, source cda_patientRole : PatientRole, target fhir_patient : Patient, target fhir_bundle : Bundle) {
   
   // patientRole.id[1]

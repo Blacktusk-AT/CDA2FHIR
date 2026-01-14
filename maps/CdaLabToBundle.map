@@ -145,6 +145,12 @@ group CdaLaboratoryReportHeaderToFhirComposition(source cda : ClinicalDocument, 
             coding_coding.code = '11502-2'
             "CdaMissingCodeTranslationToFhirCompositionTypeAndDiagnosticReportCode";
     };
+
+    // 1..1 ClinicalDocument.recordTarget -> Patient
+    cda.recordTarget as cda_recordTarget then {
+        // ClinicalDocument.recordTarget.patientRole
+        cda_recordTarget.patientRole as cda_patientRole then CdaLabPatientRoleToFhirPatient(cda, cda_patientRole, fhir_patient, fhir_bundle) "CdaPatientRoleToFhirPatient";
+    } "CdaRecordTargetToFhirPatient";
     
 }   
 
@@ -185,10 +191,12 @@ group CdaLaboratoryReportHeaderToDiagnosticReport(source cda : ClinicalDocument,
     
     // 1..1 ClinicalDocument.setId -> DiagnosticReport.identifier
     cda.setId -> fhir_diagnosticReport.identifier;
+
+
 }
 
 
-group CdaLabPatientRoleToFhirPatient(source cda: ClinicalDocument, source cda_patientRole : PatientRole, target fhir_patient : Patient, target fhir_bundle : Bundle) {
+group CdaLabPatientRoleToFhirPatient(source cda : ClinicalDocument, source cda_patientRole : PatientRole, target fhir_patient : Patient, target fhir_bundle : Bundle) extends CdaPatientRoleToFhirPatient{
 
     cda_patientRole ->
         fhir_patient.meta as fhir_patient_meta,
