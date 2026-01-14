@@ -825,6 +825,7 @@ group CdaOrganizationCompilationToFhirOrganization(source cda_organization: CdaO
   cda_organization.addr -> fhir_organization.address;
 }
 
+//ToDo: Think how to refactor groups like these because they are very austria specific. Refactor Address to BdaAtoBundle 
 // Source: https://art-decor.org/ad/#/at-lab-/rules/templates/1.2.40.0.34.6.0.11.9.25/2021-02-19T13:05:47
 //         https://art-decor.org/ad/#/at-lab-/rules/templates/1.2.40.0.34.6.0.11.9.10/2021-06-28T13:44:14
 // Target: https://fhir.hl7.at/r4-core-main/StructureDefinition-at-core-address.html
@@ -915,7 +916,7 @@ group CdaAdressCompilationToFhirAustrianAddress(source cda_address : AD, target 
       fhir_address.line = (cda_address.item.streetAddressLine.xmlText)
       "CdaAddressStreetNameAndHouseNumberWithoutAdditionalLocatorToFhirAddressLine";
 }
-
+//ToDo: Think how to refactor groups like these because they are very austria specific.
 // source: https://art-decor.org/mediawiki/index.php?title=DTr1_TEL.AT
 // source: ELGA URL_Scheme, ELGA_TelecomAddressUse
 // target: https://www.hl7.org/fhir/datatypes.html#2.24.0.15

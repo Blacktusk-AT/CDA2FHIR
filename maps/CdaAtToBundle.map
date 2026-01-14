@@ -182,13 +182,24 @@ group CdaHeaderToFhirComposition(source cda : ClinicalDocument, target fhir_pati
         fhir_composition_extenstion.value = cast(cda_versionNumber_value, 'string')
         "CdaVersionNumberToFhirVersionNumber";
     };
+    // ClinicalDocument.author (as person)
+    cda.author as cda_author where $this.assignedAuthor.assignedPerson.exists() ->
+        // create the PractitionerRole in order to capture the author.functionCode
+        fhir_bundle.entry as fhir_bundle_entry,
+        fhir_bundle_entry.resource = create('PractitionerRole') as fhir_practitionerRole,
+        fhir_practitionerRole.id = uuid() as fhir_practitionerRole_id,
+        fhir_bundle_entry.fullUrl = append('urn:uuid:', fhir_practitionerRole_id),
+        fhir_composition.author = create('Reference') as fhir_composition_author_reference,
+        fhir_composition_author_reference.reference = append('urn:uuid:', fhir_practitionerRole_id),
+        fhir_composition_author_reference.type = 'PractitionerRole' then
+        CdaAuthorToFhirPractitionerRole(cda_author, fhir_practitionerRole, fhir_bundle);
 
 }
 
 // General Austrian Patient Mapping 
 group CdaPatientRoleToFhirPatient(source cda: ClinicalDocument, source cda_patientRole : PatientRole, target fhir_patient : Patient, target fhir_bundle : Bundle) {
   
-  // patientRole.id[1]
+  // recordTarget.patientRole.id[1] -> Patient.identifier
   cda_patientRole.id first as cda_patientRole_id -> fhir_patient.identifier = create('Identifier') as fhir_patient_identifier then {
     // patientRole.id
     cda_patientRole_id then II(cda_patientRole_id, fhir_patient_identifier) "CdaIdToFhirIdentifier";
@@ -201,8 +212,8 @@ group CdaPatientRoleToFhirPatient(source cda: ClinicalDocument, source cda_patie
       type_coding.display = 'Patient internal identifier'
       "FhirPatientIdentifierTypeCodingPI";
   } "CdaLocalPatientIdToFhirPatientIdentifier";
-
-  // patientRole.id[>1]
+  
+  // recordTarget.patientRole.id[>1] -> Patient.identifier
   cda_patientRole.id not_first as cda_patientRole_id where (nullFlavor.exists().not() and cda_patientRole_id.root != '1.2.40.0.10.2.1.1.149') -> fhir_patient.identifier = create('Identifier') as fhir_patient_identifier then {
     // patientRole.id
     cda_patientRole_id then II(cda_patientRole_id, fhir_patient_identifier) "CdaIdToFhirIdentifier";
@@ -243,7 +254,7 @@ group CdaPatientRoleToFhirPatient(source cda: ClinicalDocument, source cda_patie
   //   "CdaPatientAddressToFhirPatientAustrianAddress";
   cda_patientRole.addr -> fhir_patient.address;
 
-  // patientRole.telecom
+  // 0..* recordTarget.patientRole.telecom -> Patient.telecom
   cda_patientRole.telecom -> fhir_patient.telecom;
 
   // patientRole.patient
@@ -298,11 +309,16 @@ group CdaPatientRoleToFhirPatient(source cda: ClinicalDocument, source cda_patie
       "CdaPatientBirthTimeNullFlavorToFhirPatientBirthDateNullFlavor";
 
     // patient.deceasedInd
-    cda_patient.sdtcDeceasedInd as cda_patient_deceasedInd where cda_patient.sdtcDeceasedTime.empty() -> fhir_patient.deceased = create('boolean') as fhir_patient_deceased then BL(cda_patient_deceasedInd, fhir_patient_deceased) "CdaPatientDeceasedIndToFhirPatientDeceasedBoolean";
+    cda_patient.sdtcDeceasedInd as cda_patient_deceasedInd where cda_patient.sdtcDeceasedTime.empty() -> 
+        fhir_patient.deceased = create('boolean') as fhir_patient_deceased then BL(cda_patient_deceasedInd, fhir_patient_deceased) "CdaPatientDeceasedIndToFhirPatientDeceasedBoolean";
+    
     // patient.deceasedTime
-    cda_patient.sdtcDeceasedTime as cda_patient_deceasedTime -> fhir_patient.deceased = create('dateTime') as fhir_patient_deceased then TSDateTime(cda_patient_deceasedTime, fhir_patient_deceased) "CdaPatientDeceasedTimeToFhirPatientDeceasedDateTime";
+    cda_patient.sdtcDeceasedTime as cda_patient_deceasedTime -> 
+        fhir_patient.deceased = create('dateTime') as fhir_patient_deceased then TSDateTime(cda_patient_deceasedTime, fhir_patient_deceased) "CdaPatientDeceasedTimeToFhirPatientDeceasedDateTime";
+    
     // patient.maritalStatusCode
     cda_patient.maritalStatusCode -> fhir_patient.maritalStatus;
+    
     // patient.religiousAffiliationCode
     cda_patient.religiousAffiliationCode as cda_patient_religiousAffiliationCode ->
       fhir_patient.extension as religion_extension,
@@ -420,6 +436,57 @@ group CdaPatientRoleToFhirPatient(source cda: ClinicalDocument, source cda_patie
     fhir_patient_birthDate_extension_code.value = 'unknown'
     "CdaPatientExistsNotToFhirPatient";
 }
+
+// Source: https://art-decor.org/art-decor/decor-templates--at-lab-?section=templates&id=1.2.40.0.34.6.0.11.1.2&effectiveDate=2021-08-24T08:35:56&language=de-DE
+// Target: http://hl7.org/fhir/practitionerrole.html
+//         http://hl7.org/fhir/practitioner.html
+group CdaAuthorToFhirPractitionerRole(source cda_author : Author, target fhir_practitionerRole : PractitionerRole, target fhir_bundle : Bundle){
+  cda_author ->
+    // create the Practitioner
+    fhir_bundle.entry as fhir_bundle_entry,
+    fhir_bundle_entry.resource = create('Practitioner') as fhir_practitioner,
+    fhir_practitioner.id = uuid() as fhir_practitioner_id,
+    fhir_bundle_entry.fullUrl = append('urn:uuid:', fhir_practitioner_id),
+    fhir_practitionerRole.practitioner = create('Reference') as fhir_practitionerRole_practitioner_reference,
+    fhir_practitionerRole_practitioner_reference.reference = append('urn:uuid:', fhir_practitioner_id),
+    fhir_practitionerRole_practitioner_reference.type = 'Practitioner' then {
+
+      // ClinicalDocument.author.functionCode
+      cda_author.functionCode -> fhir_practitionerRole.specialty;
+
+      // ClinicalDocument.author.time
+      // TODO extension?
+
+      // ClinicalDocument.author.assignedAuthor
+      cda_author.assignedAuthor as cda_author_assignedAuthor then {
+        // ClinicalDocument.author.assignedAuthor.id
+        cda_author_assignedAuthor.id where (nullFlavor.exists().not()) -> fhir_practitioner.identifier;
+        // ClinicalDocument.author.assignedAuthor.code
+        cda_author_assignedAuthor.code as cda_author_assignedAuthor_code ->
+          fhir_practitioner.qualification as fhir_practitioner_qualification,
+          fhir_practitioner_qualification.code as fhir_practitioner_qualification_code then
+          CECodeableConcept(cda_author_assignedAuthor_code,fhir_practitioner_qualification_code);
+        // ClinicalDocument.author.assignedAuthor.telecom
+        cda_author_assignedAuthor.telecom -> fhir_practitioner.telecom;
+        // ClinicalDocument.author.assignedAuthor.assignedPerson
+        cda_author_assignedAuthor.assignedPerson as cda_assignedPerson then {
+          cda_assignedPerson.name -> fhir_practitioner.name;
+        };
+        // ClinicalDocument.author.assignedAuthor.representedOrganization
+        cda_author_assignedAuthor.representedOrganization as cda_representedOrganization ->
+          fhir_bundle.entry as fhir_bundle_entry,
+          fhir_bundle_entry.resource = create('Organization') as fhir_organization,
+          fhir_organization.id = uuid() as fhir_organization_id,
+          fhir_bundle_entry.fullUrl = append('urn:uuid:', fhir_organization_id),
+          fhir_practitionerRole.organization = create('Reference') as fhir_practitionerRole_organization,
+          fhir_practitionerRole_organization.reference = append('urn:uuid:', fhir_organization_id),
+          fhir_practitionerRole_organization.type = 'Organization' then
+          CdaOrganizationCompilationToFhirOrganization(cda_representedOrganization, fhir_organization);
+      };
+    } "CdaAuthorToFhirPractitionerRole";
+}
+
+
 
 // ToDo
 
