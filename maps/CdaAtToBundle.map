@@ -78,7 +78,7 @@ imports "http://hl7.at/fhir/HL7ATCoreProfiles/4.0.1/StructureMap/cda-eimpf-to-bu
 
 // _________________________ Document Level Template  _________________________
 
-group CdaAtToBundle(source cda : ClinicalDocument, target fhir_bundle : Bundle){
+group CdaToFhir(source cda : ClinicalDocument, target fhir_bundle : Bundle){
     cda ->
         fhir_bundle.id = uuid(),
         fhir_bundle.type = 'document';
@@ -107,7 +107,7 @@ group CdaAtToBundle(source cda : ClinicalDocument, target fhir_bundle : Bundle){
     };  
 }
 
-group ClinicalDocumentToBundle(source cda : ClinicalDocument, target fhir_patient : Patient, target fhir_composition : Composition, target fhir_bundle : Bundle){
+group CdaAtToBundle(source cda : ClinicalDocument, target fhir_patient : Patient, target fhir_composition : Composition, target fhir_bundle : Bundle){
     cda ->
         // Fetch Patient 
         fhir_patient.id as fhir_patient_id, 
@@ -118,7 +118,7 @@ group ClinicalDocumentToBundle(source cda : ClinicalDocument, target fhir_patien
         fhir_composition_subject_reference.type = 'Patient'; 
 }
 
-group CdaHeaderToFhirComposition(source cda : ClinicalDocument, target fhir_patient : Patient, target fhir_composition : Composition, target fhir_bundle : Bundle){
+group CdaAtHeaderToComposition (source cda : ClinicalDocument, target fhir_patient : Patient, target fhir_composition : Composition, target fhir_bundle : Bundle){
         // CdaAtToBundle 
         // ClinicalDocument.id -> Bundle.identifier
         // ClinicalDocument.effectiveTime -> Bundle.timestamp 
@@ -192,12 +192,23 @@ group CdaHeaderToFhirComposition(source cda : ClinicalDocument, target fhir_pati
         fhir_composition.author = create('Reference') as fhir_composition_author_reference,
         fhir_composition_author_reference.reference = append('urn:uuid:', fhir_practitionerRole_id),
         fhir_composition_author_reference.type = 'PractitionerRole' then
-        CdaAuthorToFhirPractitionerRole(cda_author, fhir_practitionerRole, fhir_bundle);
-
+        CdaAtAuthorToFhirPractitionerRole(cda_author, fhir_practitionerRole, fhir_bundle);
+        
+    // ClinicalDocument.author (as device)
+    cda.author as cda_author where $this.assignedAuthor.assignedAuthoringDevice.exists() ->
+        // create the Device
+        fhir_bundle.entry as fhir_bundle_entry,
+        fhir_bundle_entry.resource = create('Device') as fhir_device,
+        fhir_device.id = uuid() as fhir_device_id,
+        fhir_bundle_entry.fullUrl = append('urn:uuid:', fhir_device_id),
+        fhir_composition.author = create('Reference') as fhir_composition_author_reference,
+        fhir_composition_author_reference.reference = append('urn:uuid:', fhir_device_id),
+        fhir_composition_author_reference.type = 'Device' then
+        CdaAtAuthorToFhirDevice(cda_author, fhir_device, fhir_bundle);
 }
 
 // General Austrian Patient Mapping 
-group CdaPatientRoleToFhirPatient(source cda: ClinicalDocument, source cda_patientRole : PatientRole, target fhir_patient : Patient, target fhir_bundle : Bundle) {
+group CdaAtPatientRoleToFhirPatient(source cda: ClinicalDocument, source cda_patientRole : PatientRole, target fhir_patient : Patient, target fhir_bundle : Bundle) {
   
   // recordTarget.patientRole.id[1] -> Patient.identifier
   cda_patientRole.id first as cda_patientRole_id -> fhir_patient.identifier = create('Identifier') as fhir_patient_identifier then {
@@ -440,7 +451,7 @@ group CdaPatientRoleToFhirPatient(source cda: ClinicalDocument, source cda_patie
 // Source: https://art-decor.org/art-decor/decor-templates--at-lab-?section=templates&id=1.2.40.0.34.6.0.11.1.2&effectiveDate=2021-08-24T08:35:56&language=de-DE
 // Target: http://hl7.org/fhir/practitionerrole.html
 //         http://hl7.org/fhir/practitioner.html
-group CdaAuthorToFhirPractitionerRole(source cda_author : Author, target fhir_practitionerRole : PractitionerRole, target fhir_bundle : Bundle){
+group CdaAtAuthorToFhirPractitionerRole(source cda_author : Author, target fhir_practitionerRole : PractitionerRole, target fhir_bundle : Bundle){
   cda_author ->
     // create the Practitioner
     fhir_bundle.entry as fhir_bundle_entry,
@@ -483,10 +494,55 @@ group CdaAuthorToFhirPractitionerRole(source cda_author : Author, target fhir_pr
           fhir_practitionerRole_organization.type = 'Organization' then
           CdaOrganizationCompilationToFhirOrganization(cda_representedOrganization, fhir_organization);
       };
-    } "CdaAuthorToFhirPractitionerRole";
+    } "CdaAtAuthorToFhirPractitionerRole";
 }
 
 
+
+// Source: https://art-decor.org/art-decor/decor-templates--at-lab-?section=templates&id=1.2.40.0.34.6.0.11.1.2&effectiveDate=2021-08-24T08:35:56&language=de-DE
+// Target: http://hl7.org/fhir/device.html
+group CdaAtAuthorToFhirDevice(source cda_author : Author, target fhir_device : Device, target fhir_bundle : Bundle){
+    // author.functionCode
+    // TODO correct?
+    cda_author.functionCode -> fhir_device.type;
+    // author.time
+    // TODO extension?
+
+    // author.assignedAuthor
+    cda_author.assignedAuthor as cda_author_assignedAuthor then {
+      // author.assignedAuthor.id
+      cda_author_assignedAuthor.id where (nullFlavor.exists().not()) -> fhir_device.identifier;
+
+      // author.assignedAuthor.code
+      // skipped because no value in ValueSet ELGA_AuthorSpeciality suits a device
+      // author.assignedAuthor.telecom
+      cda_author_assignedAuthor.telecom -> fhir_device.contact;
+      // author.assignedAuthor.assignedAuthoringDevice
+      cda_author_assignedAuthor.assignedAuthoringDevice as cda_assignedAuthoringDevice then {
+        // author.assignedAuthor.assignedAuthoringDevice.manufacturerModelName
+        cda_assignedAuthoringDevice.manufacturerModelName as cda_manufacturerModelName ->
+          fhir_device.deviceName as fhir_device_deviceName,
+          fhir_device_deviceName.name = (cda_manufacturerModelName.xmlText),
+          fhir_device_deviceName.type = 'model-name';
+        // author.assignedAuthor.assignedAuthoringDevice.softwareName
+        // TODO not clear if this is the right place to store that information
+        cda_assignedAuthoringDevice.softwareName as cda_softwareName ->
+          fhir_device.deviceName as fhir_device_deviceName,
+          fhir_device_deviceName.name = (cda_softwareName.xmlText),
+          fhir_device_deviceName.type = 'other';
+      };
+      // author.assignedAuthor.representedOrganization
+      cda_author_assignedAuthor.representedOrganization as cda_representedOrganization ->
+        fhir_bundle.entry as fhir_bundle_entry,
+        fhir_bundle_entry.resource = create('Organization') as fhir_organization,
+        fhir_organization.id = uuid() as fhir_organization_id,
+        fhir_bundle_entry.fullUrl = append('urn:uuid:', fhir_organization_id),
+        fhir_device.owner = create('Reference') as fhir_device_owner,
+        fhir_device_owner.reference = append('urn:uuid:', fhir_organization_id),
+        fhir_device_owner.type = 'Organization' then
+        CdaOrganizationCompilationToFhirOrganization(cda_representedOrganization, fhir_organization);
+    };
+}
 
 // ToDo
 

@@ -66,7 +66,7 @@ group CdaAtLabToFhirBundle(source cda : ClinicalDocument, target fhir_patient : 
         // fhir_bundle_entry.fullUrl = append('urn:uuid:',fhir_practitionerRole_id),
 }
 
-group LaboratoryReportToBundle(source cda : ClinicalDocument, target fhir_patient : Patient, target fhir_composition : Composition, target fhir_bundle : Bundle) extends ClinicalDocumentToBundle{
+group LaboratoryReportToBundle(source cda : ClinicalDocument, target fhir_patient : Patient, target fhir_composition : Composition, target fhir_bundle : Bundle) extends CdaAtToBundle{
     cda ->
     
         // create the DiagnosticReport to have it as reference for later transformations
@@ -128,7 +128,7 @@ group LaboratoryReportToBundle(source cda : ClinicalDocument, target fhir_patien
         }; 
 }
 
-group CdaLaboratoryReportHeaderToFhirComposition(source cda : ClinicalDocument, target fhir_patient : Patient, target fhir_serviceRequest : ServiceRequest, target fhir_composition : Composition, target fhir_bundle : Bundle) extends CdaHeaderToFhirComposition{
+group CdaLaboratoryReportHeaderToFhirComposition(source cda : ClinicalDocument, target fhir_patient : Patient, target fhir_serviceRequest : ServiceRequest, target fhir_composition : Composition, target fhir_bundle : Bundle) extends CdaAtHeaderToComposition{
      cda -> 
         fhir_composition.meta as fhir_composition_meta,
         fhir_composition_meta.profile = 'http://fhir.ehdsi.eu/laboratory/StructureDefinition/Composition-lab-myhealtheu'
@@ -196,7 +196,7 @@ group CdaLaboratoryReportHeaderToDiagnosticReport(source cda : ClinicalDocument,
 }
 
 
-group CdaLabPatientRoleToFhirPatient(source cda : ClinicalDocument, source cda_patientRole : PatientRole, target fhir_patient : Patient, target fhir_bundle : Bundle) extends CdaPatientRoleToFhirPatient{
+group CdaLabPatientRoleToFhirPatient(source cda : ClinicalDocument, source cda_patientRole : PatientRole, target fhir_patient : Patient, target fhir_bundle : Bundle) extends CdaAtAuthorToFhirPractitionerRole{
 
     cda_patientRole ->
         fhir_patient.meta as fhir_patient_meta,
