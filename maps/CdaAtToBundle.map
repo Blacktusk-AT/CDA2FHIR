@@ -79,15 +79,7 @@ imports "http://hl7.at/fhir/HL7ATCoreProfiles/4.0.1/StructureMap/cda-eimpf-to-bu
 // _________________________ Document Level Template  _________________________
 
 group CdaToFhir(source cda : ClinicalDocument, target fhir_bundle : Bundle){
-    cda ->
-        fhir_bundle.id = uuid(),
-        fhir_bundle.type = 'document';
-    // 1..1 ClinicalDocument.id -> Bundle.identifier
-    cda.id -> 
-        fhir_bundle.identifier "identifier";
     
-    // 1..1 ClinicalDocument.effectiveTime -> Bundle.timestamp 
-    cda.effectiveTime -> fhir_bundle.timestamp;
 
     cda -> 
         fhir_bundle.entry as fhir_bundle_entry,
@@ -98,7 +90,11 @@ group CdaToFhir(source cda : ClinicalDocument, target fhir_bundle : Bundle){
         fhir_bundle.entry as fhir_bundle_entry,
         fhir_bundle_entry.resource = create('Composition') as fhir_composition, 
         fhir_composition.id = uuid() as fhir_composition_id,
-        fhir_bundle_entry.fullUrl = append('urn:uuid:', fhir_composition_id); 
+        fhir_bundle_entry.fullUrl = append('urn:uuid:', fhir_composition_id),
+
+        fhir_composition.subject = create('Reference') as fhir_composition_subject_reference,
+        fhir_composition_subject_reference.reference = append('urn:uuid:', fhir_patient_id),
+        fhir_composition_subject_reference.type = 'Patient'; 
 
     // Check which document is executed in pipelien and pass to the corresponding map file. 
     cda.code as cda_code then {
@@ -108,18 +104,22 @@ group CdaToFhir(source cda : ClinicalDocument, target fhir_bundle : Bundle){
 }
 
 group CdaAtToBundle(source cda : ClinicalDocument, target fhir_patient : Patient, target fhir_composition : Composition, target fhir_bundle : Bundle){
-    cda ->
-        // Fetch Patient 
-        fhir_patient.id as fhir_patient_id, 
+  cda ->
+        fhir_bundle.id = uuid(),
+        fhir_bundle.type = 'document';
+    // 1..1 ClinicalDocument.id -> Bundle.identifier
+    cda.id -> 
+        fhir_bundle.identifier "identifier";
     
-        // create relation from Composition to Patient
-        fhir_composition.subject = create('Reference') as fhir_composition_subject_reference,
-        fhir_composition_subject_reference.reference = append('urn:uuid:', fhir_patient_id),
-        fhir_composition_subject_reference.type = 'Patient'; 
-}
+    // 1..1 ClinicalDocument.effectiveTime -> Bundle.timestamp 
+    cda.effectiveTime -> fhir_bundle.timestamp;  
 
-group CdaAtHeaderToComposition (source cda : ClinicalDocument, target fhir_patient : Patient, target fhir_composition : Composition, target fhir_bundle : Bundle){
-        // CdaAtToBundle 
+}
+/*
+
+
+This group will map the minimal fhir elements 
+ // CdaAtToBundle 
         // ClinicalDocument.id -> Bundle.identifier
         // ClinicalDocument.effectiveTime -> Bundle.timestamp 
     // CdaHeaderToFhirComposition
@@ -129,6 +129,9 @@ group CdaAtHeaderToComposition (source cda : ClinicalDocument, target fhir_patie
         // ClinicalDocument.sdtc:statusCode -> Composition.status
         // ClinicalDocument.hl7at:terminologyDate -> Composition.extension(http://hl7.at/fhir/HL7ATCoreProfiles/4.0.1/StructureDefinition/at-core-ext-composition-terminologyDate)
     
+*/
+group CdaAtHeaderToComposition (source cda : ClinicalDocument, target fhir_patient : Patient, target fhir_composition : Composition, target fhir_bundle : Bundle){
+       
     
     
     
@@ -600,17 +603,6 @@ group CdaAtServiceEventToCompositionEvent(source cda_documentationOf : Documenta
 
         cda_documentationOf.serviceEvent as cda_documentationOf_serviceEvent ->
         fhir_composition.event as fhir_composition_event then {
-
-        // ClinicalDocument.documentationOf.serviceEvent.id
-        // TODO Extension has to be specified in AT Lab IG
-        cda_documentationOf_serviceEvent.id as serviceEvent_id then {
-            serviceEvent_id.root as serviceEvent_id_root ->
-            fhir_composition_event.extension as fhir_composition_event_extension,
-            fhir_composition_event_extension.url = 'https://fhir.hl7.at/elga/lab/r4/StructureDefinition/at-lab-ext-composition-eventId',
-            fhir_composition_event_extension.value = create('oid') as fhir_composition_event_extension_oid,
-            fhir_composition_event_extension_oid.value = append('urn:oid:', serviceEvent_id_root)
-            "CdaServiceEventIdToFhirEventIdExtension";
-        } "CdaServiceEventIdToFhirEventId";
 
         // ClinicalDocument.documentationOf.serviceEvent.code
         cda_documentationOf_serviceEvent.code -> fhir_composition_event.code;

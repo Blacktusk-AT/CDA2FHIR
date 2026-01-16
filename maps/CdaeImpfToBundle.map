@@ -74,7 +74,7 @@ imports "http://hl7.at/fhir/HL7ATCoreProfiles/4.0.1/StructureMap/at-cda-to-fhir-
 
 group CdaAteImpfToFhirBundle(source cda : ClinicalDocument, target fhir_patient : Patient, target fhir_composition : Composition, target fhir_bundle : Bundle) extends CdaAPSToFhirBundle{
     cda then CdaeImpfToBundle(cda, fhir_patient, fhir_composition, fhir_bundle);
-    cda then CdaAPSToFhirBundle(cda, fhir_patient, fhir_composition, fhir_bundle);
+   // remove?? cda then CdaAPSToFhirBundle(cda, fhir_patient, fhir_composition, fhir_bundle);
 }
 
 group CdaeImpfToBundle(source cda : ClinicalDocument, target fhir_patient : Patient, target fhir_composition : Composition, target fhir_bundle : Bundle) extends CdaAtToBundle{
@@ -86,15 +86,15 @@ group CdaeImpfHeaderToFhir(source cda : ClinicalDocument, target fhir_patient : 
 
     // 1..1 ClinicalDocument.recordTarget -> Patient
     cda.recordTarget as cda_recordTarget then {
-        // ClinicalDocument.recordTarget.patientRole
+        // ClinicalDocument.recordTarget.patientRole*
+        // create base impf patient 
         cda_recordTarget.patientRole as cda_patientRole then CdaeImpfPatientRoleToFhirPatient(cda, cda_patientRole, fhir_patient, fhir_bundle);
+        // if aps -> top up patient with aps meta data 
         cda_recordTarget.patientRole as cda_patientRole then CdaAPSPatientRoleToFhirPatient(cda, cda_patientRole, fhir_patient, fhir_bundle);
     } "CdaRecordTargetToFhirPatient";
 
     // 1..1 ClinicalDocument.documentationOf -> Composition.event 
     cda.documentationOf as cda_documentationOf then CdaAtServiceEventToCompositionEvent(cda_documentationOf,fhir_composition, fhir_bundle);
-    };
-
 
 }
 // Mapping for AT Patient that every FHIR Resource in the context of Immunization should have 
