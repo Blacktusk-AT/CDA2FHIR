@@ -238,13 +238,13 @@ group CdaEmedSectionToFhir(source cda: ClinicalDocument, source cda_section: Sec
       };
    } "CdaEmedPrescriptionListSectionToFhir"
 
-   // Map cda_section text-Element to FHIR 
+   // Map fhir_composition_medications_section text-Element to FHIR 
    // section.text
-  /*cda_section.text as cda_section_text ->
-    fhir_section.text as fhir_section_text,
-    fhir_section_text.status = 'generated' then {
+   cda_section.text as cda_section_text ->
+   fhir_composition_medications_section.text as fhir_composition_medications_section_text,
+   fhir_composition_medications_section_text.status = 'generated' then {
       // section.text where no section.languageCode exists
-      cda_section_text where cda_section.languageCode.exists().not() -> fhir_section_text.div = cda_section_text "CdaSectionTextToFhirSectionText";
+      cda_section_text where cda_section.languageCode.exists().not() -> fhir_composition_medications_section_text.div = cda_section_text "CdaSectionTextToFhirSectionText";
 
       // section.text with section.languageCode
       cda_section_text where cda_section.languageCode.exists() then {
@@ -252,11 +252,11 @@ group CdaEmedSectionToFhir(source cda: ClinicalDocument, source cda_section: Sec
           cda_languageCode.code as cda_languageCode_code ->
 
             // TODO see https://github.com/HL7Austria/CDA2FHIR/issues/162
-            fhir_section_text.div = cda_section_text "CdaSectionTextToFhirSectionTextWithLang";
+            fhir_composition_medications_section_text.div = cda_section_text "CdaSectionTextToFhirSectionTextWithLang";
             //  fhir_section_text.div = append('<div xml:lang="', cda_languageCode_code, '">', cda_section_text, '</div>') "asdf";
         };
       } "CdaSectionTextToFhirSectionTextWithLanguage";
-    };*/
+    };
 }
 
 group CdaEmedAbgabeEntryToFhir(source cda: ClinicalDocument, source cda_section, source cda_supply: Supply, target fhir_composition: Composition, target fhir_composition_medications_section, target fhir_patient: Patient, target fhir_bundle: Bundle) {
@@ -693,7 +693,7 @@ group CdaEmedAbgabeEntryRelationshipToFhir(source cda: ClinicalDocument, source 
   cda_entryRelationship.substanceAdministration as cda_entryRelationship_substanceAdministration where ($this.templateId.exists(root = '1.3.6.1.4.1.19376.1.9.1.3.6') and $this.templateId.exists(root = '1.3.6.1.4.1.19376.1.5.3.1.4.7.1') and ($this.effectiveTime.period.exists().not() or $this.effectiveTime.phase.exists().not() or $this.effectiveTime.comp.exists().not())) then {
     cda_entryRelationship_substanceAdministration.effectiveTime as cda_entryRelationship_substanceAdministration_effectiveTime then {
       // Einnahmedauer: Kein Width-Element vorhanden
-      cda_entryRelationship_substanceAdministration_effectiveTime: IVL_TS as cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_noWidth where ($this.width.exists().not() and ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor.exists().not()) or ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor exists()) or ($this.low.nullFlavor.exists() and $this.high.nullFlavor.exists().not())) ->
+      cda_entryRelationship_substanceAdministration_effectiveTime: IVL_TS as cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_noWidth where ($this.width.exists().not() and ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor.exists().not()) or ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor.exists()) or ($this.low.nullFlavor.exists() and $this.high.nullFlavor.exists().not())) ->
       fhir_medicationDispense.dosageInstruction = create('Dosage') as fhir_medicationDispense_dosageInstruction,
       fhir_medicationDispense_dosageInstruction.timing = create('Timing') as fhir_medicationDispense_dosageInstruction_timing,
       fhir_medicationDispense_dosageInstruction_timing.repeat as fhir_medicationDispense_dosageInstruction_timing_repeat,
@@ -721,7 +721,7 @@ group CdaEmedAbgabeEntryRelationshipToFhir(source cda: ClinicalDocument, source 
     cda_entryRelationship_substanceAdministration.effectiveTime as cda_entryRelationship_substanceAdministration_effectiveTime then {
 
       // Einnahmedauer: Kein Width-Element vorhanden
-      cda_entryRelationship_substanceAdministration_effectiveTime: IVL_TS as cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_noWidth where ($this.width.exists().not() and ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor.exists().not()) or ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor exists()) or ($this.low.nullFlavor.exists() and $this.high.nullFlavor.exists().not())) ->
+      cda_entryRelationship_substanceAdministration_effectiveTime: IVL_TS as cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_noWidth where ($this.width.exists().not() and ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor.exists().not()) or ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor.exists()) or ($this.low.nullFlavor.exists() and $this.high.nullFlavor.exists().not())) ->
       fhir_medicationDispense_dosageInstruction_timing_repeat.bounds = create('Period') as fhir_medicationDispense_dosageInstruction_timing_boundsPeriod then IVLTSPeriod(cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_noWidth,fhir_medicationDispense_dosageInstruction_timing_boundsPeriod);
 
       // Einnahmedauer: Width-Element vorhanden
@@ -778,7 +778,7 @@ group CdaEmedAbgabeEntryRelationshipToFhir(source cda: ClinicalDocument, source 
   then {
 
     // Einnahmedauer: Kein Width-Element vorhanden
-    cda_entryRelationship_substanceAdministration.effectiveTime: IVL_TS as cda_effectiveTime_IVLTS_noWidth where ($this.width.exists().not() and ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor.exists().not()) or ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor exists()) or ($this.low.nullFlavor.exists() and $this.high.nullFlavor.exists().not())) ->
+    cda_entryRelationship_substanceAdministration.effectiveTime: IVL_TS as cda_effectiveTime_IVLTS_noWidth where ($this.width.exists().not() and ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor.exists().not()) or ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor.exists()) or ($this.low.nullFlavor.exists() and $this.high.nullFlavor.exists().not())) ->
     fhir_medicationDispense_dosageInstruction = create('Dosage') as fhir_medicationDispense_dosageInstruction,
     fhir_medicationDispense_dosageInstruction.timing = create('Timing') as fhir_medicationDispense_dosageInstruction_timing,
     fhir_medicationDispense_dosageInstruction_timing.repeat as fhir_medicationDispense_dosageInstruction_timing_repeat,
@@ -957,7 +957,7 @@ group CdaEmedVerordnungEntryToFhir(source cda: ClinicalDocument, source cda_sect
         cda_sbadm.effectiveTime as cda_effectiveTime where (cda_sbadm.templateId.exists(root = '1.3.6.1.4.1.19376.1.9.1.3.6') and cda_sbadm.templateId.exists(root = '1.3.6.1.4.1.19376.1.5.3.1.4.7.1') and ($this.period.exists().not() or $this.phase.exists().not() or $this.comp.exists().not())) then {
 
           // Einnahmedauer: Kein Width-Element vorhanden
-          cda_effectiveTime: IVL_TS as cda_effectiveTime_IVLTS_noWidth where ($this.width.exists().not() and ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor.exists().not()) or ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor exists()) or ($this.low.nullFlavor.exists() and $this.high.nullFlavor.exists().not())) ->
+          cda_effectiveTime: IVL_TS as cda_effectiveTime_IVLTS_noWidth where ($this.width.exists().not() and ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor.exists().not()) or ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor.exists()) or ($this.low.nullFlavor.exists() and $this.high.nullFlavor.exists().not())) ->
           fhir_medicationRequest.dosageInstruction = create('Dosage') as fhir_medicationRequest_dosageInstruction,
           fhir_medicationRequest_dosageInstruction.timing = create('Timing') as fhir_medicationRequest_dosageInstruction_timing,
           fhir_medicationRequest_dosageInstruction_timing.repeat as fhir_medicationRequest_dosageInstruction_timing_repeat,
@@ -981,7 +981,7 @@ group CdaEmedVerordnungEntryToFhir(source cda: ClinicalDocument, source cda_sect
         fhir_medicationRequest_dosageInstruction_timing.repeat as fhir_medicationRequest_dosageInstruction_timing_repeat then {
 
           // Einnahmedauer: Kein Width-Element vorhanden
-          cda_effectiveTime: IVL_TS as cda_effectiveTime_IVLTS_noWidth where ($this.width.exists().not() and ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor.exists().not()) or ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor exists()) or ($this.low.nullFlavor.exists() and $this.high.nullFlavor.exists().not())) ->
+          cda_effectiveTime: IVL_TS as cda_effectiveTime_IVLTS_noWidth where ($this.width.exists().not() and ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor.exists().not()) or ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor.exists()) or ($this.low.nullFlavor.exists() and $this.high.nullFlavor.exists().not())) ->
           fhir_medicationRequest_dosageInstruction_timing_repeat.bounds = create('Period') as fhir_medicationRequest_dosageInstruction_timing_boundsPeriod then IVLTSPeriod(cda_effectiveTime_IVLTS_noWidth,fhir_medicationRequest_dosageInstruction_timing_boundsPeriod);
 
           // Einnahmedauer: Width-Element vorhanden
@@ -1021,6 +1021,7 @@ group CdaEmedVerordnungEntryToFhir(source cda: ClinicalDocument, source cda_sect
           cda_sbadm.doseQuantity as cda_doseQuantity ->
           fhir_medicationRequest_dosageInstruction.doseAndRate as fhir_medicationRequest_dosageInstruction_doseAndRate,
           fhir_medicationRequest_dosageInstruction_doseAndRate.doseQuantity = create('Quantity') as fhir_medicationRequest_dosageInstruction_doseAndRate_doseQuantity then PQQuantity(cda_doseQuantity,fhir_medicationRequest_dosageInstruction_doseAndRate_doseQuantity);
+        
         };
         
 
@@ -1030,7 +1031,7 @@ group CdaEmedVerordnungEntryToFhir(source cda: ClinicalDocument, source cda_sect
         cda_sbadm.effectiveTime as cda_effectiveTime where (cda_sbadm.templateId.exists(root = '1.3.6.1.4.1.19376.1.9.1.3.6') and cda_sbadm.templateId.exists(root = '1.3.6.1.4.1.19376.1.5.3.1.4.9')) then {
 
           // Einnahmedauer: Kein Width-Element vorhanden
-          cda_effectiveTime: IVL_TS as cda_effectiveTime_IVLTS_noWidth where ($this.width.exists().not() and ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor.exists().not()) or ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor exists()) or ($this.low.nullFlavor.exists() and $this.high.nullFlavor.exists().not())) ->
+          cda_effectiveTime: IVL_TS as cda_effectiveTime_IVLTS_noWidth where ($this.width.exists().not() and ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor.exists().not()) or ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor.exists()) or ($this.low.nullFlavor.exists() and $this.high.nullFlavor.exists().not())) ->
           fhir_medicationRequest.dosageInstruction = create('Dosage') as fhir_medicationRequest_dosageInstruction,
           fhir_medicationRequest_dosageInstruction.timing = create('Timing') as fhir_medicationRequest_dosageInstruction_timing,
           fhir_medicationRequest_dosageInstruction_timing.repeat as fhir_medicationRequest_dosageInstruction_timing_repeat,
@@ -1119,14 +1120,14 @@ group CdaEmedVerordnungEntryToFhir(source cda: ClinicalDocument, source cda_sect
         };
       };
 
+      // Art der Anwendung der Arznei
+      cda_sbadm.routeCode as cda_substanceAdministration_routeCode ->
+      fhir_medicationRequest_dosageInstruction.route as fhir_medicationRequest_dosageInstruction_route then CECodeableConcept(cda_substanceAdministration_routeCode,fhir_medicationRequest_dosageInstruction_route);  
+
       // Maximale Anzahl der Einlösungen -> medicationRequest.dispenseRequest.numberOfRepeatsAllowed
       cda_sbadm.repeatNumber as cda_substanceAdministration_repeatNumber where ($this.nullFlavor.exists().not()) ->
       fhir_medicationRequest.dispenseRequest as fhir_medicationRequest_dispenseRequest,
       fhir_medicationRequest_dispenseRequest.numberOfRepeatsAllowed as fhir_medicationRequest_dispenseRequest_numberOfRepeatsAllowed then INT(cda_substanceAdministration_repeatNumber,fhir_medicationRequest_dispenseRequest_numberOfRepeatsAllowed);
-
-      // Art der Anwendung der Arznei
-      cda_sbadm.routeCode as cda_substanceAdministration_routeCode ->
-      fhir_medicationRequest_dosageInstruction.route as fhir_medicationRequest_dosageInstruction_route then CECodeableConcept(cda_substanceAdministration_routeCode,fhir_medicationRequest_dosageInstruction_route);
 
       // Anzahl der Packungen
       // Check cardinality
@@ -1174,6 +1175,7 @@ group CdaEmedVerordnungEntryToFhir(source cda: ClinicalDocument, source cda_sect
                       fhir_substring_02 = (fhir_substring_01.substring(fhir_substring_01.indexOf('>') + 1)),
                       
                       // Create a substring from the start till the first occurrence of < character
+                      fhir_medicationRequest.dosageInstruction = create('Dosage') as fhir_medicationRequest_dosageInstruction,
                       fhir_medicationRequest_dosageInstruction.patientInstruction = (fhir_substring_02.substring(0, fhir_substring_02.indexOf('<')));
                     }; 
                   };
@@ -1216,6 +1218,7 @@ group CdaEmedVerordnungEntryToFhir(source cda: ClinicalDocument, source cda_sect
                       // Create a substring from the start till the first occurrence of < character
                       //create('string') as fhir_substring_03,
                       //fhir_substring_03 = (fhir_substring_02.substring(0, fhir_substring_02.indexOf('<'))),
+                      fhir_medicationRequest.dosageInstruction = create('Dosage') as fhir_medicationRequest_dosageInstruction,
                       fhir_medicationRequest_dosageInstruction.text = (fhir_substring_02.substring(0, fhir_substring_02.indexOf('<')));/*(iif(fhir_medicationRequest_dosageInstruction.text.exists(),
                                                                         (fhir_medicationRequest_dosageInstruction.text + fhir_substring_03),
                                                                         fhir_substring_03));*/
@@ -1308,6 +1311,7 @@ group CdaEmedVerordnungEntryToFhir(source cda: ClinicalDocument, source cda_sect
                       // Create a substring from the start till the first occurrence of < character
                       //create('string') as fhir_substring_03,
                       //fhir_substring_03 = (fhir_substring_02.substring(0, fhir_substring_02.indexOf('<'))),
+                      fhir_medicationRequest.dosageInstruction = create('Dosage') as fhir_medicationRequest_dosageInstruction,
                       fhir_medicationRequest_dosageInstruction.text = (fhir_substring_02.substring(0, fhir_substring_02.indexOf('<')));/*(iif(fhir_medicationRequest_dosageInstruction.text.exists(),
                                                                         (fhir_medicationRequest_dosageInstruction.text + fhir_substring_03),
                                                                         fhir_substring_03));*/
