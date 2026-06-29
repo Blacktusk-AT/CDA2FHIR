@@ -1031,10 +1031,16 @@ group CdaEmedVerordnungEntryToFhir(source cda: ClinicalDocument, source cda_sect
 
           // Einnahmedauer: Kein Width-Element vorhanden
           cda_effectiveTime: IVL_TS as cda_effectiveTime_IVLTS_noWidth where ($this.width.exists().not() and ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor.exists().not()) or ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor exists()) or ($this.low.nullFlavor.exists() and $this.high.nullFlavor.exists().not())) ->
+          fhir_medicationRequest.dosageInstruction = create('Dosage') as fhir_medicationRequest_dosageInstruction,
+          fhir_medicationRequest_dosageInstruction.timing = create('Timing') as fhir_medicationRequest_dosageInstruction_timing,
+          fhir_medicationRequest_dosageInstruction_timing.repeat as fhir_medicationRequest_dosageInstruction_timing_repeat,
           fhir_medicationRequest_dosageInstruction_timing_repeat.bounds = create('Period') as fhir_medicationRequest_dosageInstruction_timing_boundsPeriod then IVLTSPeriod(cda_effectiveTime_IVLTS_noWidth,fhir_medicationRequest_dosageInstruction_timing_boundsPeriod);
 
           // Einnahmedauer: Width-Element vorhanden
           cda_effectiveTime: IVL_TS as cda_effectiveTime_IVLTS_width where ($this.width.exists() and $this.low.exists().not() and $this.high.exists().not()) ->
+          fhir_medicationRequest.dosageInstruction = create('Dosage') as fhir_medicationRequest_dosageInstruction,
+          fhir_medicationRequest_dosageInstruction.timing = create('Timing') as fhir_medicationRequest_dosageInstruction_timing,
+          fhir_medicationRequest_dosageInstruction_timing.repeat as fhir_medicationRequest_dosageInstruction_timing_repeat,
           fhir_medicationRequest_dosageInstruction_timing_repeat.bounds = create('Duration') as fhir_medicationRequest_dosageInstruction_timing_boundsDuration then {
             // effectiveTime/width
             cda_effectiveTime_IVLTS_width.width as cda_effectiveTime_IVLTS_width_width then PQQuantity(cda_effectiveTime_IVLTS_width_width,fhir_medicationRequest_dosageInstruction_timing_boundsDuration);
