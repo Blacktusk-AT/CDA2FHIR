@@ -861,6 +861,9 @@ group CdaEmedAbgabeEntryRelationshipToFhir(source cda: ClinicalDocument, source 
           };
         };
       };
+      // Art der Anwendung der Arznei
+      cda_entryRelationship_substanceAdministration.routeCode first as cda_substanceAdministration_routeCode ->
+      fhir_medicationDispense_dosageInstruction.route as fhir_medicationDispense_dosageInstruction_route then CECodeableConcept(cda_substanceAdministration_routeCode,fhir_medicationDispense_dosageInstruction_route);
     };
   };
 
@@ -1022,6 +1025,9 @@ group CdaEmedVerordnungEntryToFhir(source cda: ClinicalDocument, source cda_sect
           fhir_medicationRequest_dosageInstruction.doseAndRate as fhir_medicationRequest_dosageInstruction_doseAndRate,
           fhir_medicationRequest_dosageInstruction_doseAndRate.doseQuantity = create('Quantity') as fhir_medicationRequest_dosageInstruction_doseAndRate_doseQuantity then PQQuantity(cda_doseQuantity,fhir_medicationRequest_dosageInstruction_doseAndRate_doseQuantity);
         
+          // Art der Anwendung der Arznei
+          cda_sbadm.routeCode as cda_substanceAdministration_routeCode ->
+          fhir_medicationRequest_dosageInstruction.route as fhir_medicationRequest_dosageInstruction_route then CECodeableConcept(cda_substanceAdministration_routeCode,fhir_medicationRequest_dosageInstruction_route);  
         };
         
 
@@ -1117,12 +1123,11 @@ group CdaEmedVerordnungEntryToFhir(source cda: ClinicalDocument, source cda_sect
               };
             };
           };
+          // Art der Anwendung der Arznei
+          cda_sbadm.routeCode first as cda_substanceAdministration_routeCode ->
+          fhir_medicationRequest_dosageInstruction.route as fhir_medicationRequest_dosageInstruction_route then CECodeableConcept(cda_substanceAdministration_routeCode,fhir_medicationRequest_dosageInstruction_route);  
         };
       };
-
-      // Art der Anwendung der Arznei
-      cda_sbadm.routeCode as cda_substanceAdministration_routeCode ->
-      fhir_medicationRequest_dosageInstruction.route as fhir_medicationRequest_dosageInstruction_route then CECodeableConcept(cda_substanceAdministration_routeCode,fhir_medicationRequest_dosageInstruction_route);  
 
       // Maximale Anzahl der Einlösungen -> medicationRequest.dispenseRequest.numberOfRepeatsAllowed
       cda_sbadm.repeatNumber as cda_substanceAdministration_repeatNumber where ($this.nullFlavor.exists().not()) ->
