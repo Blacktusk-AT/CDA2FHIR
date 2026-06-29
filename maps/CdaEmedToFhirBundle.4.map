@@ -693,7 +693,7 @@ group CdaEmedAbgabeEntryRelationshipToFhir(source cda: ClinicalDocument, source 
   cda_entryRelationship.substanceAdministration as cda_entryRelationship_substanceAdministration where ($this.templateId.exists(root = '1.3.6.1.4.1.19376.1.9.1.3.6') and $this.templateId.exists(root = '1.3.6.1.4.1.19376.1.5.3.1.4.7.1') and ($this.effectiveTime.period.exists().not() or $this.effectiveTime.phase.exists().not() or $this.effectiveTime.comp.exists().not())) then {
     cda_entryRelationship_substanceAdministration.effectiveTime as cda_entryRelationship_substanceAdministration_effectiveTime then {
       // Einnahmedauer: Kein Width-Element vorhanden
-      cda_entryRelationship_substanceAdministration_effectiveTime: IVL_TS as cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_noWidth where (($this.low.nullFlavor.exists().not() and $this.high.nullFlavor.exists().not()) or ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor exists()) or ($this.low.nullFlavor.exists() and $this.high.nullFlavor.exists().not()) and $this.width.exists().not()) ->
+      cda_entryRelationship_substanceAdministration_effectiveTime: IVL_TS as cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_noWidth where ($this.width.exists().not() and ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor.exists().not()) or ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor exists()) or ($this.low.nullFlavor.exists() and $this.high.nullFlavor.exists().not())) ->
       fhir_medicationDispense.dosageInstruction = create('Dosage') as fhir_medicationDispense_dosageInstruction,
       fhir_medicationDispense_dosageInstruction.timing = create('Timing') as fhir_medicationDispense_dosageInstruction_timing,
       fhir_medicationDispense_dosageInstruction_timing.repeat as fhir_medicationDispense_dosageInstruction_timing_repeat,
@@ -721,7 +721,7 @@ group CdaEmedAbgabeEntryRelationshipToFhir(source cda: ClinicalDocument, source 
     cda_entryRelationship_substanceAdministration.effectiveTime as cda_entryRelationship_substanceAdministration_effectiveTime then {
 
       // Einnahmedauer: Kein Width-Element vorhanden
-      cda_entryRelationship_substanceAdministration_effectiveTime: IVL_TS as cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_noWidth where (($this.low.nullFlavor.exists().not() and $this.high.nullFlavor.exists().not()) or ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor exists()) or ($this.low.nullFlavor.exists() and $this.high.nullFlavor.exists().not()) and $this.width.exists().not()) ->
+      cda_entryRelationship_substanceAdministration_effectiveTime: IVL_TS as cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_noWidth where ($this.width.exists().not() and ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor.exists().not()) or ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor exists()) or ($this.low.nullFlavor.exists() and $this.high.nullFlavor.exists().not())) ->
       fhir_medicationDispense_dosageInstruction_timing_repeat.bounds = create('Period') as fhir_medicationDispense_dosageInstruction_timing_boundsPeriod then IVLTSPeriod(cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_noWidth,fhir_medicationDispense_dosageInstruction_timing_boundsPeriod);
 
       // Einnahmedauer: Width-Element vorhanden
@@ -778,7 +778,7 @@ group CdaEmedAbgabeEntryRelationshipToFhir(source cda: ClinicalDocument, source 
   then {
 
     // Einnahmedauer: Kein Width-Element vorhanden
-    cda_entryRelationship_substanceAdministration.effectiveTime: IVL_TS as cda_effectiveTime_IVLTS_noWidth where (($this.low.nullFlavor.exists().not() and $this.high.nullFlavor.exists().not()) or ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor exists()) or ($this.low.nullFlavor.exists() and $this.high.nullFlavor.exists().not()) and $this.width.exists().not()) ->
+    cda_entryRelationship_substanceAdministration.effectiveTime: IVL_TS as cda_effectiveTime_IVLTS_noWidth where ($this.width.exists().not() and ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor.exists().not()) or ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor exists()) or ($this.low.nullFlavor.exists() and $this.high.nullFlavor.exists().not())) ->
     fhir_medicationDispense_dosageInstruction = create('Dosage') as fhir_medicationDispense_dosageInstruction,
     fhir_medicationDispense_dosageInstruction.timing = create('Timing') as fhir_medicationDispense_dosageInstruction_timing,
     fhir_medicationDispense_dosageInstruction_timing.repeat as fhir_medicationDispense_dosageInstruction_timing_repeat,
@@ -957,7 +957,7 @@ group CdaEmedVerordnungEntryToFhir(source cda: ClinicalDocument, source cda_sect
         cda_sbadm.effectiveTime as cda_effectiveTime where (cda_sbadm.templateId.exists(root = '1.3.6.1.4.1.19376.1.9.1.3.6') and cda_sbadm.templateId.exists(root = '1.3.6.1.4.1.19376.1.5.3.1.4.7.1') and ($this.period.exists().not() or $this.phase.exists().not() or $this.comp.exists().not())) then {
 
           // Einnahmedauer: Kein Width-Element vorhanden
-          cda_effectiveTime: IVL_TS as cda_effectiveTime_IVLTS_noWidth where (($this.low.nullFlavor.exists().not() and $this.high.nullFlavor.exists().not()) or ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor exists()) or ($this.low.nullFlavor.exists() and $this.high.nullFlavor.exists().not()) and $this.width.exists().not()) ->
+          cda_effectiveTime: IVL_TS as cda_effectiveTime_IVLTS_noWidth where ($this.width.exists().not() and ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor.exists().not()) or ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor exists()) or ($this.low.nullFlavor.exists() and $this.high.nullFlavor.exists().not())) ->
           fhir_medicationRequest.dosageInstruction = create('Dosage') as fhir_medicationRequest_dosageInstruction,
           fhir_medicationRequest_dosageInstruction.timing = create('Timing') as fhir_medicationRequest_dosageInstruction_timing,
           fhir_medicationRequest_dosageInstruction_timing.repeat as fhir_medicationRequest_dosageInstruction_timing_repeat,
@@ -981,7 +981,7 @@ group CdaEmedVerordnungEntryToFhir(source cda: ClinicalDocument, source cda_sect
         fhir_medicationRequest_dosageInstruction_timing.repeat as fhir_medicationRequest_dosageInstruction_timing_repeat then {
 
           // Einnahmedauer: Kein Width-Element vorhanden
-          cda_effectiveTime: IVL_TS as cda_effectiveTime_IVLTS_noWidth where (($this.low.nullFlavor.exists().not() and $this.high.nullFlavor.exists().not()) or ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor exists()) or ($this.low.nullFlavor.exists() and $this.high.nullFlavor.exists().not()) and $this.width.exists().not()) ->
+          cda_effectiveTime: IVL_TS as cda_effectiveTime_IVLTS_noWidth where ($this.width.exists().not() and ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor.exists().not()) or ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor exists()) or ($this.low.nullFlavor.exists() and $this.high.nullFlavor.exists().not())) ->
           fhir_medicationRequest_dosageInstruction_timing_repeat.bounds = create('Period') as fhir_medicationRequest_dosageInstruction_timing_boundsPeriod then IVLTSPeriod(cda_effectiveTime_IVLTS_noWidth,fhir_medicationRequest_dosageInstruction_timing_boundsPeriod);
 
           // Einnahmedauer: Width-Element vorhanden
@@ -1030,7 +1030,7 @@ group CdaEmedVerordnungEntryToFhir(source cda: ClinicalDocument, source cda_sect
         cda_sbadm.effectiveTime as cda_effectiveTime where (cda_sbadm.templateId.exists(root = '1.3.6.1.4.1.19376.1.9.1.3.6') and cda_sbadm.templateId.exists(root = '1.3.6.1.4.1.19376.1.5.3.1.4.9')) then {
 
           // Einnahmedauer: Kein Width-Element vorhanden
-          cda_effectiveTime: IVL_TS as cda_effectiveTime_IVLTS_noWidth where (($this.low.nullFlavor.exists().not() and $this.high.nullFlavor.exists().not()) or ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor exists()) or ($this.low.nullFlavor.exists() and $this.high.nullFlavor.exists().not()) and $this.width.exists().not()) ->
+          cda_effectiveTime: IVL_TS as cda_effectiveTime_IVLTS_noWidth where ($this.width.exists().not() and ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor.exists().not()) or ($this.low.nullFlavor.exists().not() and $this.high.nullFlavor exists()) or ($this.low.nullFlavor.exists() and $this.high.nullFlavor.exists().not())) ->
           fhir_medicationRequest_dosageInstruction_timing_repeat.bounds = create('Period') as fhir_medicationRequest_dosageInstruction_timing_boundsPeriod then IVLTSPeriod(cda_effectiveTime_IVLTS_noWidth,fhir_medicationRequest_dosageInstruction_timing_boundsPeriod);
 
           // Einnahmedauer: Width-Element vorhanden
