@@ -87399,6 +87399,20 @@ def CdaEmedSectionToFhir(cda, cda_section, fhir_composition, fhir_composition_me
                 if cda_entry_substanceAdministration is not None:
                     if fhirpath.single([v1 for v1 in fhirpath_utils.get(cda_entry_substanceAdministration,'templateId') if v1.root == '1.2.40.0.34.11.8.1.3.1']):
                         CdaEmedVerordnungEntryToFhir(cda, cda_section, cda_entry_substanceAdministration, fhir_composition, fhir_composition_medications_section, fhir_patient, fhir_bundle)
+    cda_section_text = cda_section.text
+    if cda_section_text is not None:
+        if fhir_composition_medications_section.text is None:
+            fhir_composition_medications_section.text = malac.models.fhir.r4.Narrative()
+        fhir_composition_medications_section_text = fhir_composition_medications_section.text
+        fhir_composition_medications_section_text.status = string(value='generated')
+        if cda_section.languageCode is None:
+            fhir_composition_medications_section_text.div = utils.strucdoctext2html(malac.models.fhir.r4, cda_section_text)
+        if cda_section.languageCode is not None:
+            cda_languageCode = cda_section.languageCode
+            if cda_languageCode is not None:
+                cda_languageCode_code = cda_languageCode.code
+                if cda_languageCode_code is not None:
+                    fhir_composition_medications_section_text.div = utils.strucdoctext2html(malac.models.fhir.r4, cda_section_text)
 
 def CdaEmedAbgabeEntryToFhir(cda, cda_section, cda_supply, fhir_composition, fhir_composition_medications_section, fhir_patient, fhir_bundle):
     fhir_bundle_entry = malac.models.fhir.r4.Bundle_Entry()
@@ -87759,29 +87773,115 @@ def CdaEmedAbgabeEntryRelationshipToFhir(cda, cda_section, cda_entryRelationship
                                             if fhir_substring_03 is not None:
                                                 fhir_substring_03 = string(value=fhirpath.single(fhirpath_utils.substring(fhir_substring_02,[0],fhirpath_utils.indexof(fhir_substring_02, ['<']))))
                                             fhir_medication_text.div = utils.builddiv(malac.models.fhir.r4, fhir_substring_03.value)
-    if cda_entryRelationship.substanceAdministration is not None:
-        cda_entryRelationship_substanceAdministration = cda_entryRelationship.substanceAdministration
-        if cda_entryRelationship_substanceAdministration is not None:
+    cda_entryRelationship_substanceAdministration = cda_entryRelationship.substanceAdministration
+    if cda_entryRelationship_substanceAdministration is not None:
+        if [v1 for v1 in fhirpath_utils.get(cda_entryRelationship_substanceAdministration,'templateId') if v1.root == '1.3.6.1.4.1.19376.1.9.1.3.6'] and [v2 for v2 in fhirpath_utils.get(cda_entryRelationship_substanceAdministration,'templateId') if v2.root == '1.3.6.1.4.1.19376.1.5.3.1.4.7.1'] and (not fhirpath_utils.get(cda_entryRelationship_substanceAdministration,'effectiveTime','period') or not fhirpath_utils.get(cda_entryRelationship_substanceAdministration,'effectiveTime','phase') or not fhirpath_utils.get(cda_entryRelationship_substanceAdministration,'effectiveTime','comp')):
             for cda_entryRelationship_substanceAdministration_effectiveTime in cda_entryRelationship_substanceAdministration.effectiveTime or []:
-                if type(cda_entryRelationship_substanceAdministration_effectiveTime) is malac.models.cda.at_ext.IVL_TS:
-                    if fhirpath_utils.get(cda_entryRelationship_substanceAdministration_effectiveTime,'width'):
-                        fhir_medicationDispense_dosageInstruction = malac.models.fhir.r4.Dosage()
-                        fhir_medicationDispense.dosageInstruction.append(fhir_medicationDispense_dosageInstruction)
-                        fhir_medicationDispense_dosageInstruction_timing = malac.models.fhir.r4.Timing()
-                        fhir_medicationDispense_dosageInstruction.timing = fhir_medicationDispense_dosageInstruction_timing
-                        if fhir_medicationDispense_dosageInstruction_timing.repeat is None:
-                            fhir_medicationDispense_dosageInstruction_timing.repeat = malac.models.fhir.r4.Timing_Repeat()
-                        fhir_medicationDispense_dosageInstruction_timing_repeat = fhir_medicationDispense_dosageInstruction_timing.repeat
-                        fhir_medicationDispense_dosageInstruction_timing_boundsDuration = malac.models.fhir.r4.Duration()
-                        fhir_medicationDispense_dosageInstruction_timing_repeat.boundsDuration = fhir_medicationDispense_dosageInstruction_timing_boundsDuration
-                        cda_entryRelationship_substanceAdministration_effectiveTime_width = cda_entryRelationship_substanceAdministration_effectiveTime.width
-                        if cda_entryRelationship_substanceAdministration_effectiveTime_width is not None:
-                            PQQuantity(cda_entryRelationship_substanceAdministration_effectiveTime_width, fhir_medicationDispense_dosageInstruction_timing_boundsDuration)
+                cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_noWidth = cda_entryRelationship_substanceAdministration_effectiveTime
+                if cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_noWidth is not None:
+                    if type(cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_noWidth) is malac.models.cda.at_ext.IVL_TS:
+                        if (not fhirpath_utils.get(cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_noWidth,'width') and not fhirpath_utils.get(cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_noWidth,'low','nullFlavor') and not fhirpath_utils.get(cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_noWidth,'high','nullFlavor')) or (not fhirpath_utils.get(cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_noWidth,'low','nullFlavor') and fhirpath_utils.get(cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_noWidth,'high','nullFlavor')) or (fhirpath_utils.get(cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_noWidth,'low','nullFlavor') and not fhirpath_utils.get(cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_noWidth,'high','nullFlavor')):
+                            fhir_medicationDispense_dosageInstruction = malac.models.fhir.r4.Dosage()
+                            fhir_medicationDispense.dosageInstruction.append(fhir_medicationDispense_dosageInstruction)
+                            fhir_medicationDispense_dosageInstruction_timing = malac.models.fhir.r4.Timing()
+                            fhir_medicationDispense_dosageInstruction.timing = fhir_medicationDispense_dosageInstruction_timing
+                            if fhir_medicationDispense_dosageInstruction_timing.repeat is None:
+                                fhir_medicationDispense_dosageInstruction_timing.repeat = malac.models.fhir.r4.Timing_Repeat()
+                            fhir_medicationDispense_dosageInstruction_timing_repeat = fhir_medicationDispense_dosageInstruction_timing.repeat
+                            fhir_medicationDispense_dosageInstruction_timing_boundsPeriod = malac.models.fhir.r4.Period()
+                            fhir_medicationDispense_dosageInstruction_timing_repeat.boundsPeriod = fhir_medicationDispense_dosageInstruction_timing_boundsPeriod
+                            IVLTSPeriod(cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_noWidth, fhir_medicationDispense_dosageInstruction_timing_boundsPeriod)
+                cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_width = cda_entryRelationship_substanceAdministration_effectiveTime
+                if cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_width is not None:
+                    if type(cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_width) is malac.models.cda.at_ext.IVL_TS:
+                        if fhirpath_utils.get(cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_width,'width') and not fhirpath_utils.get(cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_width,'low') and not fhirpath_utils.get(cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_width,'high'):
+                            fhir_medicationDispense_dosageInstruction = malac.models.fhir.r4.Dosage()
+                            fhir_medicationDispense.dosageInstruction.append(fhir_medicationDispense_dosageInstruction)
+                            fhir_medicationDispense_dosageInstruction_timing = malac.models.fhir.r4.Timing()
+                            fhir_medicationDispense_dosageInstruction.timing = fhir_medicationDispense_dosageInstruction_timing
+                            if fhir_medicationDispense_dosageInstruction_timing.repeat is None:
+                                fhir_medicationDispense_dosageInstruction_timing.repeat = malac.models.fhir.r4.Timing_Repeat()
+                            fhir_medicationDispense_dosageInstruction_timing_repeat = fhir_medicationDispense_dosageInstruction_timing.repeat
+                            fhir_medicationDispense_dosageInstruction_timing_boundsDuration = malac.models.fhir.r4.Duration()
+                            fhir_medicationDispense_dosageInstruction_timing_repeat.boundsDuration = fhir_medicationDispense_dosageInstruction_timing_boundsDuration
+                            cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_width_width = cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_width.width
+                            if cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_width_width is not None:
+                                PQQuantity(cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_width_width, fhir_medicationDispense_dosageInstruction_timing_boundsDuration)
+    cda_entryRelationship_substanceAdministration = cda_entryRelationship.substanceAdministration
+    if cda_entryRelationship_substanceAdministration is not None:
+        if [v1 for v1 in fhirpath_utils.get(cda_entryRelationship_substanceAdministration,'templateId') if v1.root == '1.3.6.1.4.1.19376.1.9.1.3.6'] and [v2 for v2 in fhirpath_utils.get(cda_entryRelationship_substanceAdministration,'templateId') if v2.root == '1.3.6.1.4.1.19376.1.5.3.1.4.7.1'] and (fhirpath_utils.get(cda_entryRelationship_substanceAdministration,'effectiveTime','period') or fhirpath_utils.get(cda_entryRelationship_substanceAdministration,'effectiveTime','phase') or fhirpath_utils.get(cda_entryRelationship_substanceAdministration,'effectiveTime','comp')):
+            fhir_medicationDispense_dosageInstruction = malac.models.fhir.r4.Dosage()
+            fhir_medicationDispense.dosageInstruction.append(fhir_medicationDispense_dosageInstruction)
+            fhir_medicationDispense_dosageInstruction_timing = malac.models.fhir.r4.Timing()
+            fhir_medicationDispense_dosageInstruction.timing = fhir_medicationDispense_dosageInstruction_timing
+            if fhir_medicationDispense_dosageInstruction_timing.repeat is None:
+                fhir_medicationDispense_dosageInstruction_timing.repeat = malac.models.fhir.r4.Timing_Repeat()
+            fhir_medicationDispense_dosageInstruction_timing_repeat = fhir_medicationDispense_dosageInstruction_timing.repeat
             for cda_entryRelationship_substanceAdministration_effectiveTime in cda_entryRelationship_substanceAdministration.effectiveTime or []:
-                if type(cda_entryRelationship_substanceAdministration_effectiveTime) is malac.models.cda.at_ext.IVL_TS:
-                    if not fhirpath_utils.get(cda_entryRelationship_substanceAdministration_effectiveTime,'width') and (not fhirpath_utils.get(cda_entryRelationship_substanceAdministration_effectiveTime,'low','nullFlavor') or not fhirpath_utils.get(cda_entryRelationship_substanceAdministration_effectiveTime,'high','nullFlavor')):
+                cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_noWidth = cda_entryRelationship_substanceAdministration_effectiveTime
+                if cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_noWidth is not None:
+                    if type(cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_noWidth) is malac.models.cda.at_ext.IVL_TS:
+                        if (not fhirpath_utils.get(cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_noWidth,'width') and not fhirpath_utils.get(cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_noWidth,'low','nullFlavor') and not fhirpath_utils.get(cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_noWidth,'high','nullFlavor')) or (not fhirpath_utils.get(cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_noWidth,'low','nullFlavor') and fhirpath_utils.get(cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_noWidth,'high','nullFlavor')) or (fhirpath_utils.get(cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_noWidth,'low','nullFlavor') and not fhirpath_utils.get(cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_noWidth,'high','nullFlavor')):
+                            fhir_medicationDispense_dosageInstruction_timing_boundsPeriod = malac.models.fhir.r4.Period()
+                            fhir_medicationDispense_dosageInstruction_timing_repeat.boundsPeriod = fhir_medicationDispense_dosageInstruction_timing_boundsPeriod
+                            IVLTSPeriod(cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_noWidth, fhir_medicationDispense_dosageInstruction_timing_boundsPeriod)
+                cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_width = cda_entryRelationship_substanceAdministration_effectiveTime
+                if cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_width is not None:
+                    if type(cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_width) is malac.models.cda.at_ext.IVL_TS:
+                        if fhirpath_utils.get(cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_width,'width') and not fhirpath_utils.get(cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_width,'low') and not fhirpath_utils.get(cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_width,'high'):
+                            fhir_medicationDispense_dosageInstruction_timing_boundsDuration = malac.models.fhir.r4.Duration()
+                            fhir_medicationDispense_dosageInstruction_timing_repeat.boundsDuration = fhir_medicationDispense_dosageInstruction_timing_boundsDuration
+                            cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_width_width = cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_width.width
+                            if cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_width_width is not None:
+                                PQQuantity(cda_entryRelationship_substanceAdministration_effectiveTime_IVLTS_width_width, fhir_medicationDispense_dosageInstruction_timing_boundsDuration)
+                cda_entryRelationship_substanceAdministration_effectiveTime_PIVLTS = cda_entryRelationship_substanceAdministration_effectiveTime
+                if cda_entryRelationship_substanceAdministration_effectiveTime_PIVLTS is not None:
+                    if type(cda_entryRelationship_substanceAdministration_effectiveTime_PIVLTS) is malac.models.cda.at_ext.PIVL_TS:
+                        cda_entryRelationship_substanceAdministration_effectiveTime_PIVLTS_period = cda_entryRelationship_substanceAdministration_effectiveTime_PIVLTS.period
+                        if cda_entryRelationship_substanceAdministration_effectiveTime_PIVLTS_period is not None:
+                            fhir_medicationDispense_dosageInstruction_timing_repeat.period = malac.models.fhir.r4.decimal(value=str(fhirpath.single(fhirpath_utils.get(cda_entryRelationship_substanceAdministration_effectiveTime_PIVLTS_period,'value'))))
+                            fhir_medicationDispense_dosageInstruction_timing_repeat.periodUnit = malac.models.fhir.r4.UnitsOfTime(value=fhirpath.single(fhirpath_utils.get(cda_entryRelationship_substanceAdministration_effectiveTime_PIVLTS_period,'unit')))
+                        cda_entryRelationship_substanceAdministration_effectiveTime_PIVLTS_phase = cda_entryRelationship_substanceAdministration_effectiveTime_PIVLTS.phase
+                        if cda_entryRelationship_substanceAdministration_effectiveTime_PIVLTS_phase is not None:
+                            fhir_medicationDispense_dosageInstruction_timing_event = malac.models.fhir.r4.dateTime()
+                            fhir_medicationDispense_dosageInstruction_timing.event.append(fhir_medicationDispense_dosageInstruction_timing_event)
+                            TSDateTime(cda_entryRelationship_substanceAdministration_effectiveTime_PIVLTS_phase, fhir_medicationDispense_dosageInstruction_timing_event)
+                cda_entryRelationship_substanceAdministration_effectiveTime_SXPRTS = cda_entryRelationship_substanceAdministration_effectiveTime
+                if cda_entryRelationship_substanceAdministration_effectiveTime_SXPRTS is not None:
+                    if type(cda_entryRelationship_substanceAdministration_effectiveTime_SXPRTS) is malac.models.cda.at_ext.SXPR_TS:
+                        if fhirpath_utils.get(cda_entryRelationship_substanceAdministration_effectiveTime_SXPRTS,'comp'):
+                            for cda_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp in cda_entryRelationship_substanceAdministration_effectiveTime_SXPRTS.comp or []:
+                                if type(cda_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp) is malac.models.cda.at_ext.PIVL_TS:
+                                    cda_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_phase = cda_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp.phase
+                                    if cda_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_phase is not None:
+                                        fhir_medicationDispense_dosageInstruction_timing_event = malac.models.fhir.r4.dateTime()
+                                        fhir_medicationDispense_dosageInstruction_timing.event.append(fhir_medicationDispense_dosageInstruction_timing_event)
+                                        TSDateTime(cda_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_phase, fhir_medicationDispense_dosageInstruction_timing_event)
+                                    cda_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_period = cda_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp.period
+                                    if cda_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_period is not None:
+                                        fhir_medicationDispense_dosageInstruction_timing_repeat.period = malac.models.fhir.r4.decimal(value=str(fhirpath.single(fhirpath_utils.get(cda_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_period,'value'))))
+                                        fhir_medicationDispense_dosageInstruction_timing_repeat.periodUnit = malac.models.fhir.r4.UnitsOfTime(value=fhirpath.single(fhirpath_utils.get(cda_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_period,'unit')))
+            cda_entryRelationship_substanceAdministration_doseQuantity = cda_entryRelationship_substanceAdministration.doseQuantity
+            if cda_entryRelationship_substanceAdministration_doseQuantity is not None:
+                fhir_medicationDispense_dosageInstruction_doseAndRate = malac.models.fhir.r4.Dosage_DoseAndRate()
+                fhir_medicationDispense_dosageInstruction.doseAndRate.append(fhir_medicationDispense_dosageInstruction_doseAndRate)
+                fhir_medicationDispense_dosageInstruction_doseAndRate_doseQuantity = malac.models.fhir.r4.Quantity()
+                fhir_medicationDispense_dosageInstruction_doseAndRate.doseQuantity = fhir_medicationDispense_dosageInstruction_doseAndRate_doseQuantity
+                PQQuantity(cda_entryRelationship_substanceAdministration_doseQuantity, fhir_medicationDispense_dosageInstruction_doseAndRate_doseQuantity)
+            cda_substanceAdministration_routeCode = cda_entryRelationship_substanceAdministration.routeCode
+            if cda_substanceAdministration_routeCode is not None:
+                if fhir_medicationDispense_dosageInstruction.route is None:
+                    fhir_medicationDispense_dosageInstruction.route = malac.models.fhir.r4.CodeableConcept()
+                fhir_medicationDispense_dosageInstruction_route = fhir_medicationDispense_dosageInstruction.route
+                CECodeableConcept(cda_substanceAdministration_routeCode, fhir_medicationDispense_dosageInstruction_route)
+    cda_entryRelationship_substanceAdministration = cda_entryRelationship.substanceAdministration
+    if cda_entryRelationship_substanceAdministration is not None:
+        if [v1 for v1 in fhirpath_utils.get(cda_entryRelationship_substanceAdministration,'templateId') if v1.root == '1.3.6.1.4.1.19376.1.9.1.3.6'] and [v2 for v2 in fhirpath_utils.get(cda_entryRelationship_substanceAdministration,'templateId') if v2.root == '1.3.6.1.4.1.19376.1.5.3.1.4.9']:
+            for cda_effectiveTime_IVLTS_noWidth in cda_entryRelationship_substanceAdministration.effectiveTime or []:
+                if type(cda_effectiveTime_IVLTS_noWidth) is malac.models.cda.at_ext.IVL_TS:
+                    if (not fhirpath_utils.get(cda_effectiveTime_IVLTS_noWidth,'width') and not fhirpath_utils.get(cda_effectiveTime_IVLTS_noWidth,'low','nullFlavor') and not fhirpath_utils.get(cda_effectiveTime_IVLTS_noWidth,'high','nullFlavor')) or (not fhirpath_utils.get(cda_effectiveTime_IVLTS_noWidth,'low','nullFlavor') and fhirpath_utils.get(cda_effectiveTime_IVLTS_noWidth,'high','nullFlavor')) or (fhirpath_utils.get(cda_effectiveTime_IVLTS_noWidth,'low','nullFlavor') and not fhirpath_utils.get(cda_effectiveTime_IVLTS_noWidth,'high','nullFlavor')):
                         fhir_medicationDispense_dosageInstruction = malac.models.fhir.r4.Dosage()
-                        fhir_medicationDispense.dosageInstruction.append(fhir_medicationDispense_dosageInstruction)
+                        fhir_medicationDispense_dosageInstruction = fhir_medicationDispense_dosageInstruction
                         fhir_medicationDispense_dosageInstruction_timing = malac.models.fhir.r4.Timing()
                         fhir_medicationDispense_dosageInstruction.timing = fhir_medicationDispense_dosageInstruction_timing
                         if fhir_medicationDispense_dosageInstruction_timing.repeat is None:
@@ -87789,174 +87889,99 @@ def CdaEmedAbgabeEntryRelationshipToFhir(cda, cda_section, cda_entryRelationship
                         fhir_medicationDispense_dosageInstruction_timing_repeat = fhir_medicationDispense_dosageInstruction_timing.repeat
                         fhir_medicationDispense_dosageInstruction_timing_boundsPeriod = malac.models.fhir.r4.Period()
                         fhir_medicationDispense_dosageInstruction_timing_repeat.boundsPeriod = fhir_medicationDispense_dosageInstruction_timing_boundsPeriod
-                        IVLTSPeriod(cda_entryRelationship_substanceAdministration_effectiveTime, fhir_medicationDispense_dosageInstruction_timing_boundsPeriod)
-            for cda_entryRelationship_substanceAdministration_effectiveTime in cda_entryRelationship_substanceAdministration.effectiveTime or []:
-                if type(cda_entryRelationship_substanceAdministration_effectiveTime) is malac.models.cda.at_ext.PIVL_TS:
-                    if not fhirpath_utils.get(cda_entryRelationship_substanceAdministration_effectiveTime,'width') and (fhirpath_utils.get(cda_entryRelationship_substanceAdministration_effectiveTime,'period') or fhirpath_utils.get(cda_entryRelationship_substanceAdministration_effectiveTime,'phase')):
+                        IVLTSPeriod(cda_effectiveTime_IVLTS_noWidth, fhir_medicationDispense_dosageInstruction_timing_boundsPeriod)
+            for cda_effectiveTime_IVLTS_width in cda_entryRelationship_substanceAdministration.effectiveTime or []:
+                if type(cda_effectiveTime_IVLTS_width) is malac.models.cda.at_ext.IVL_TS:
+                    if fhirpath_utils.get(cda_effectiveTime_IVLTS_width,'width') and not fhirpath_utils.get(cda_effectiveTime_IVLTS_width,'low') and not fhirpath_utils.get(cda_effectiveTime_IVLTS_width,'high'):
                         fhir_medicationDispense_dosageInstruction = malac.models.fhir.r4.Dosage()
-                        fhir_medicationDispense.dosageInstruction.append(fhir_medicationDispense_dosageInstruction)
+                        fhir_medicationDispense_dosageInstruction = fhir_medicationDispense_dosageInstruction
                         fhir_medicationDispense_dosageInstruction_timing = malac.models.fhir.r4.Timing()
                         fhir_medicationDispense_dosageInstruction.timing = fhir_medicationDispense_dosageInstruction_timing
-                        cda_entryRelationship_substanceAdministration_effectiveTime_period = cda_entryRelationship_substanceAdministration_effectiveTime.period
-                        if cda_entryRelationship_substanceAdministration_effectiveTime_period is not None:
-                            if fhir_medicationDispense_dosageInstruction_timing.repeat is None:
-                                fhir_medicationDispense_dosageInstruction_timing.repeat = malac.models.fhir.r4.Timing_Repeat()
-                            fhir_medicationDispense_dosageInstruction_timing_repeat = fhir_medicationDispense_dosageInstruction_timing.repeat
-                            fhir_medicationDispense_dosageInstruction_timing_boundsPeriod = malac.models.fhir.r4.Duration()
-                            fhir_medicationDispense_dosageInstruction_timing_repeat.boundsDuration = fhir_medicationDispense_dosageInstruction_timing_boundsPeriod
-                            PQQuantity(cda_entryRelationship_substanceAdministration_effectiveTime_period, fhir_medicationDispense_dosageInstruction_timing_boundsPeriod)
-                        cda_entryRelationship_substanceAdministration_effectiveTime_phase = cda_entryRelationship_substanceAdministration_effectiveTime.phase
-                        if cda_entryRelationship_substanceAdministration_effectiveTime_phase is not None:
-                            fhir_medicationDispense_dosageInstruction_timing_event = malac.models.fhir.r4.dateTime()
-                            fhir_medicationDispense_dosageInstruction_timing.event.append(fhir_medicationDispense_dosageInstruction_timing_event)
-                            TSDateTime(cda_entryRelationship_substanceAdministration_effectiveTime_phase, fhir_medicationDispense_dosageInstruction_timing_event)
-            for cda_entryRelationship_substanceAdministration_effectiveTime in cda_entryRelationship_substanceAdministration.effectiveTime or []:
-                if type(cda_entryRelationship_substanceAdministration_effectiveTime) is malac.models.cda.at_ext.SXPR_TS:
-                    for cda_entryRelationship_substanceAdministration_effectiveTime_comp in cda_entryRelationship_substanceAdministration_effectiveTime.comp or []:
-                        if type(cda_entryRelationship_substanceAdministration_effectiveTime_comp) is malac.models.cda.at_ext.EIVL_TS:
-                            fhir_medicationDispense_dosageInstruction = malac.models.fhir.r4.Dosage()
-                            fhir_medicationDispense.dosageInstruction.append(fhir_medicationDispense_dosageInstruction)
-                            fhir_medicationDispense_dosageInstruction_timing = malac.models.fhir.r4.Timing()
-                            fhir_medicationDispense_dosageInstruction.timing = fhir_medicationDispense_dosageInstruction_timing
-                            cda_entryRelationship_substanceAdministration_effectiveTime_comp_event = cda_entryRelationship_substanceAdministration_effectiveTime_comp.event
-                            if cda_entryRelationship_substanceAdministration_effectiveTime_comp_event is not None:
-                                cda_entryRelationship_substanceAdministration_effectiveTime_comp_event_code = cda_entryRelationship_substanceAdministration_effectiveTime_comp_event.code
-                                if cda_entryRelationship_substanceAdministration_effectiveTime_comp_event_code is not None:
-                                    if fhir_medicationDispense_dosageInstruction_timing.code is None:
-                                        fhir_medicationDispense_dosageInstruction_timing.code = malac.models.fhir.r4.CodeableConcept()
-                                    fhir_medicationDispense_dosageInstruction_timing_code = fhir_medicationDispense_dosageInstruction_timing.code
-                                    if fhir_medicationDispense_dosageInstruction_timing.repeat is None:
-                                        fhir_medicationDispense_dosageInstruction_timing.repeat = malac.models.fhir.r4.Timing_Repeat()
-                                    fhir_medicationDispense_dosageInstruction_timing_repeat = fhir_medicationDispense_dosageInstruction_timing.repeat
-                                    fhir_medicationDispense_dosageInstruction_timing_repeat.when.append(string(value=translate_single('elga-Einnahmezeitpunkte-fhir-event-timing', code=(cda_entryRelationship_substanceAdministration_effectiveTime_comp_event_code if isinstance(cda_entryRelationship_substanceAdministration_effectiveTime_comp_event_code, str) else cda_entryRelationship_substanceAdministration_effectiveTime_comp_event_code.value), out_type='code')))
-                                    CECodeableConcept(cda_entryRelationship_substanceAdministration_effectiveTime_comp_event, fhir_medicationDispense_dosageInstruction_timing_code)
-                            cda_entryRelationship_substanceAdministration_effectiveTime_comp_offset = cda_entryRelationship_substanceAdministration_effectiveTime_comp.offset
-                            if cda_entryRelationship_substanceAdministration_effectiveTime_comp_offset is not None:
-                                cda_entryRelationship_substanceAdministration_effectiveTime_comp_offset_value = cda_entryRelationship_substanceAdministration_effectiveTime_comp_offset.value
-                                if cda_entryRelationship_substanceAdministration_effectiveTime_comp_offset_value is not None:
-                                    fhir_medicationDispense_dosageInstruction_timing_repeat.offset = malac.models.fhir.r4.unsignedInt(value=cda_entryRelationship_substanceAdministration_effectiveTime_comp_offset_value)
-                    for cda_entryRelationship_substanceAdministration_effectiveTime_comp in cda_entryRelationship_substanceAdministration_effectiveTime.comp or []:
-                        if type(cda_entryRelationship_substanceAdministration_effectiveTime_comp) is malac.models.cda.at_ext.PIVL_TS:
-                            fhir_medicationDispense_dosageInstruction = malac.models.fhir.r4.Dosage()
-                            fhir_medicationDispense.dosageInstruction.append(fhir_medicationDispense_dosageInstruction)
-                            fhir_medicationDispense_dosageInstruction_timing = malac.models.fhir.r4.Timing()
-                            fhir_medicationDispense_dosageInstruction.timing = fhir_medicationDispense_dosageInstruction_timing
-                            cda_entryRelationship_substanceAdministration_effectiveTime_comp_period = cda_entryRelationship_substanceAdministration_effectiveTime_comp.period
-                            if cda_entryRelationship_substanceAdministration_effectiveTime_comp_period is not None:
-                                if fhir_medicationDispense_dosageInstruction_timing.repeat is None:
-                                    fhir_medicationDispense_dosageInstruction_timing.repeat = malac.models.fhir.r4.Timing_Repeat()
-                                fhir_medicationDispense_dosageInstruction_timing_repeat = fhir_medicationDispense_dosageInstruction_timing.repeat
-                                fhir_medicationDispense_dosageInstruction_timing_boundsDuration = malac.models.fhir.r4.Duration()
-                                fhir_medicationDispense_dosageInstruction_timing_repeat.boundsDuration = fhir_medicationDispense_dosageInstruction_timing_boundsDuration
-                                PQQuantity(cda_entryRelationship_substanceAdministration_effectiveTime_comp_period, fhir_medicationDispense_dosageInstruction_timing_boundsDuration)
-                            cda_entryRelationship_substanceAdministration_effectiveTime_comp_phase = cda_entryRelationship_substanceAdministration_effectiveTime_comp.phase
-                            if cda_entryRelationship_substanceAdministration_effectiveTime_comp_phase is not None:
-                                fhir_medicationDispense_dosageInstruction_timing_event = malac.models.fhir.r4.dateTime()
-                                fhir_medicationDispense_dosageInstruction_timing.event.append(fhir_medicationDispense_dosageInstruction_timing_event)
-                                TSDateTime(cda_entryRelationship_substanceAdministration_effectiveTime_comp_phase, fhir_medicationDispense_dosageInstruction_timing_event)
-            cda_substanceAdministration_routeCode = cda_entryRelationship_substanceAdministration.routeCode
-            if cda_substanceAdministration_routeCode is not None:
+                        if fhir_medicationDispense_dosageInstruction_timing.repeat is None:
+                            fhir_medicationDispense_dosageInstruction_timing.repeat = malac.models.fhir.r4.Timing_Repeat()
+                        fhir_medicationDispense_dosageInstruction_timing_repeat = fhir_medicationDispense_dosageInstruction_timing.repeat
+                        fhir_medicationDispense_dosageInstruction_timing_boundsDuration = malac.models.fhir.r4.Duration()
+                        fhir_medicationDispense_dosageInstruction_timing_repeat.boundsDuration = fhir_medicationDispense_dosageInstruction_timing_boundsDuration
+                        cda_effectiveTime_IVLTS_width_width = cda_effectiveTime_IVLTS_width.width
+                        if cda_effectiveTime_IVLTS_width_width is not None:
+                            PQQuantity(cda_effectiveTime_IVLTS_width_width, fhir_medicationDispense_dosageInstruction_timing_boundsDuration)
+            for cda_substanceAdministration_entryRelationship in cda_entryRelationship_substanceAdministration.entryRelationship or []:
                 fhir_medicationDispense_dosageInstruction = malac.models.fhir.r4.Dosage()
                 fhir_medicationDispense.dosageInstruction.append(fhir_medicationDispense_dosageInstruction)
-                if fhir_medicationDispense_dosageInstruction.route is None:
-                    fhir_medicationDispense_dosageInstruction.route = malac.models.fhir.r4.CodeableConcept()
-                fhir_medicationDispense_dosageInstruction_route = fhir_medicationDispense_dosageInstruction.route
-                CECodeableConcept(cda_substanceAdministration_routeCode, fhir_medicationDispense_dosageInstruction_route)
-            cda_entryRelationship_substanceAdministration_doseQuantity = cda_entryRelationship_substanceAdministration.doseQuantity
-            if cda_entryRelationship_substanceAdministration_doseQuantity is not None:
-                if cda_entryRelationship_substanceAdministration_doseQuantity.nullFlavor is None:
-                    fhir_medicationDispense_dosageInstruction = malac.models.fhir.r4.Dosage()
-                    fhir_medicationDispense.dosageInstruction.append(fhir_medicationDispense_dosageInstruction)
-                    fhir_medicationDispense_dosageInstruction_doseAndRate = malac.models.fhir.r4.Dosage_DoseAndRate()
-                    fhir_medicationDispense_dosageInstruction.doseAndRate.append(fhir_medicationDispense_dosageInstruction_doseAndRate)
-                    fhir_medicationDispense_dosageInstruction_doseAndRate_doseQuantity = malac.models.fhir.r4.Quantity()
-                    fhir_medicationDispense_dosageInstruction_doseAndRate.doseQuantity = fhir_medicationDispense_dosageInstruction_doseAndRate_doseQuantity
-                    PQQuantity(cda_entryRelationship_substanceAdministration_doseQuantity, fhir_medicationDispense_dosageInstruction_doseAndRate_doseQuantity)
-            for cda_entryRelationship_substanceAdministration_entryRelationship in cda_entryRelationship_substanceAdministration.entryRelationship or []:
-                cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration = cda_entryRelationship_substanceAdministration_entryRelationship.substanceAdministration
-                if cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration is not None:
-                    for cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime in cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration.effectiveTime or []:
-                        if type(cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime) is malac.models.cda.at_ext.EIVL_TS:
-                            fhir_medicationDispense_dosageInstruction = malac.models.fhir.r4.Dosage()
-                            fhir_medicationDispense_dosageInstruction = fhir_medicationDispense_dosageInstruction
-                            fhir_medicationDispense_dosageInstruction_timing = malac.models.fhir.r4.Timing()
-                            fhir_medicationDispense_dosageInstruction.timing = fhir_medicationDispense_dosageInstruction_timing
-                            cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_event = cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime.event
-                            if cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_event is not None:
-                                cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_event_code = cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_event.code
-                                if cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_event_code is not None:
+                fhir_medicationDispense_dosageInstruction_timing = malac.models.fhir.r4.Timing()
+                fhir_medicationDispense_dosageInstruction.timing = fhir_medicationDispense_dosageInstruction_timing
+                cda_substanceAdministration_entryRelationship_substanceAdministration = cda_substanceAdministration_entryRelationship.substanceAdministration
+                if cda_substanceAdministration_entryRelationship_substanceAdministration is not None:
+                    if cda_substanceAdministration_entryRelationship.sequenceNumber is not None:
+                        fhir_medicationDispense_dosageInstruction.sequence = malac.models.fhir.r4.integer()
+                        INT(cda_substanceAdministration_entryRelationship.sequenceNumber, fhir_medicationDispense_dosageInstruction.sequence)
+                    for cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS in cda_substanceAdministration_entryRelationship_substanceAdministration.effectiveTime or []:
+                        if type(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS) is malac.models.cda.at_ext.EIVL_TS:
+                            cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS_event = cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS.event
+                            if cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS_event is not None:
+                                cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS_event_code = cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS_event.code
+                                if cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS_event_code is not None:
                                     if fhir_medicationDispense_dosageInstruction_timing.code is None:
                                         fhir_medicationDispense_dosageInstruction_timing.code = malac.models.fhir.r4.CodeableConcept()
                                     fhir_medicationDispense_dosageInstruction_timing_code = fhir_medicationDispense_dosageInstruction_timing.code
                                     if fhir_medicationDispense_dosageInstruction_timing.repeat is None:
                                         fhir_medicationDispense_dosageInstruction_timing.repeat = malac.models.fhir.r4.Timing_Repeat()
                                     fhir_medicationDispense_dosageInstruction_timing_repeat = fhir_medicationDispense_dosageInstruction_timing.repeat
-                                    fhir_medicationDispense_dosageInstruction_timing_repeat.when.append(string(value=translate_single('elga-Einnahmezeitpunkte-fhir-event-timing', code=(cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_event_code if isinstance(cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_event_code, str) else cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_event_code.value), out_type='code')))
-                                    CECodeableConcept(cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_event, fhir_medicationDispense_dosageInstruction_timing_code)
-                            cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_offset = cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime.offset
-                            if cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_offset is not None:
-                                cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_offset_value = cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_offset.value
-                                if cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_offset_value is not None:
-                                    fhir_medicationDispense_dosageInstruction_timing_repeat.offset = malac.models.fhir.r4.unsignedInt(value=cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_offset_value)
-                    for cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime in cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration.effectiveTime or []:
-                        if type(cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime) is malac.models.cda.at_ext.SXPR_TS:
-                            for cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp in cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime.comp or []:
-                                if type(cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp) is malac.models.cda.at_ext.EIVL_TS:
-                                    fhir_medicationDispense_dosageInstruction = malac.models.fhir.r4.Dosage()
-                                    fhir_medicationDispense.dosageInstruction.append(fhir_medicationDispense_dosageInstruction)
-                                    fhir_medicationDispense_dosageInstruction_timing = malac.models.fhir.r4.Timing()
-                                    fhir_medicationDispense_dosageInstruction.timing = fhir_medicationDispense_dosageInstruction_timing
-                                    cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_event = cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp.event
-                                    if cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_event is not None:
-                                        cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_event_code = cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_event.code
-                                        if cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_event_code is not None:
+                                    fhir_medicationDispense_dosageInstruction_timing_repeat.when.append(string(value=translate_single('elga-Einnahmezeitpunkte-fhir-event-timing', code=(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS_event_code if isinstance(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS_event_code, str) else cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS_event_code.value), out_type='code')))
+                                    CECodeableConcept(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS_event, fhir_medicationDispense_dosageInstruction_timing_code)
+                            cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS_offset = cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS.offset
+                            if cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS_offset is not None:
+                                cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS_offset_value = cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS_offset.value
+                                if cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS_offset_value is not None:
+                                    if fhir_medicationDispense_dosageInstruction_timing.repeat is None:
+                                        fhir_medicationDispense_dosageInstruction_timing.repeat = malac.models.fhir.r4.Timing_Repeat()
+                                    fhir_medicationDispense_dosageInstruction_timing_repeat = fhir_medicationDispense_dosageInstruction_timing.repeat
+                                    fhir_medicationDispense_dosageInstruction_timing_repeat.offset = malac.models.fhir.r4.unsignedInt(value=cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS_offset_value)
+                    cda_substanceAdministration_entryRelationship_substanceAdministration_doseQuantity = cda_substanceAdministration_entryRelationship_substanceAdministration.doseQuantity
+                    if cda_substanceAdministration_entryRelationship_substanceAdministration_doseQuantity is not None:
+                        fhir_medicationDispense_dosageInstruction_doseAndRate = malac.models.fhir.r4.Dosage_DoseAndRate()
+                        fhir_medicationDispense_dosageInstruction.doseAndRate.append(fhir_medicationDispense_dosageInstruction_doseAndRate)
+                        fhir_medicationDispense_dosageInstruction_doseAndRate_doseQuantity = malac.models.fhir.r4.Quantity()
+                        fhir_medicationDispense_dosageInstruction_doseAndRate.doseQuantity = fhir_medicationDispense_dosageInstruction_doseAndRate_doseQuantity
+                        PQQuantity(cda_substanceAdministration_entryRelationship_substanceAdministration_doseQuantity, fhir_medicationDispense_dosageInstruction_doseAndRate_doseQuantity)
+                    for cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS in cda_substanceAdministration_entryRelationship_substanceAdministration.effectiveTime or []:
+                        if type(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS) is malac.models.cda.at_ext.SXPR_TS:
+                            for cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS in cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS.comp or []:
+                                if type(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS) is malac.models.cda.at_ext.EIVL_TS:
+                                    cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS_event = cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS.event
+                                    if cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS_event is not None:
+                                        cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS_event_code = cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS_event.code
+                                        if cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS_event_code is not None:
                                             if fhir_medicationDispense_dosageInstruction_timing.code is None:
                                                 fhir_medicationDispense_dosageInstruction_timing.code = malac.models.fhir.r4.CodeableConcept()
                                             fhir_medicationDispense_dosageInstruction_timing_code = fhir_medicationDispense_dosageInstruction_timing.code
                                             if fhir_medicationDispense_dosageInstruction_timing.repeat is None:
                                                 fhir_medicationDispense_dosageInstruction_timing.repeat = malac.models.fhir.r4.Timing_Repeat()
                                             fhir_medicationDispense_dosageInstruction_timing_repeat = fhir_medicationDispense_dosageInstruction_timing.repeat
-                                            fhir_medicationDispense_dosageInstruction_timing_repeat.when.append(string(value=translate_single('elga-Einnahmezeitpunkte-fhir-event-timing', code=(cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_event_code if isinstance(cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_event_code, str) else cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_event_code.value), out_type='code')))
-                                            CECodeableConcept(cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_event, fhir_medicationDispense_dosageInstruction_timing_code)
-                                    cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_offset = cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp.offset
-                                    if cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_offset is not None:
-                                        cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_offset_value = cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_offset.value
-                                        if cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_offset_value is not None:
-                                            fhir_medicationDispense_dosageInstruction_timing_repeat.offset = malac.models.fhir.r4.unsignedInt(value=cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_offset_value)
-                            for cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp in cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime.comp or []:
-                                if type(cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp) is malac.models.cda.at_ext.PIVL_TS:
-                                    fhir_medicationDispense_dosageInstruction = malac.models.fhir.r4.Dosage()
-                                    fhir_medicationDispense.dosageInstruction.append(fhir_medicationDispense_dosageInstruction)
-                                    fhir_medicationDispense_dosageInstruction_timing = malac.models.fhir.r4.Timing()
-                                    fhir_medicationDispense_dosageInstruction.timing = fhir_medicationDispense_dosageInstruction_timing
-                                    cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_phase = cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp.phase
-                                    if cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_phase is not None:
+                                            fhir_medicationDispense_dosageInstruction_timing_repeat.when.append(string(value=translate_single('elga-Einnahmezeitpunkte-fhir-event-timing', code=(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS_event_code if isinstance(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS_event_code, str) else cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS_event_code.value), out_type='code')))
+                                            CECodeableConcept(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS_event, fhir_medicationDispense_dosageInstruction_timing_code)
+                                    cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS_offset = cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS.offset
+                                    if cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS_offset is not None:
+                                        cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS_offset_value = cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS_offset.value
+                                        if cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS_offset_value is not None:
+                                            fhir_medicationDispense_dosageInstruction_timing_repeat.offset = malac.models.fhir.r4.unsignedInt(value=cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS_offset_value)
+                            for cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_PIVLTS in cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS.comp or []:
+                                if type(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_PIVLTS) is malac.models.cda.at_ext.PIVL_TS:
+                                    cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_PIVLTS_phase = cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_PIVLTS.phase
+                                    if cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_PIVLTS_phase is not None:
                                         fhir_medicationDispense_dosageInstruction_timing_event = malac.models.fhir.r4.dateTime()
                                         fhir_medicationDispense_dosageInstruction_timing.event.append(fhir_medicationDispense_dosageInstruction_timing_event)
-                                        TSDateTime(cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_phase, fhir_medicationDispense_dosageInstruction_timing_event)
-                                    cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_period = cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp.period
-                                    if cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_period is not None:
-                                        if fhir_medicationDispense_dosageInstruction_timing.repeat is None:
-                                            fhir_medicationDispense_dosageInstruction_timing.repeat = malac.models.fhir.r4.Timing_Repeat()
-                                        fhir_medicationDispense_dosageInstruction_timing_repeat = fhir_medicationDispense_dosageInstruction_timing.repeat
-                                        fhir_medicationDispense_dosageInstruction_timing_boundsDuration = malac.models.fhir.r4.Duration()
-                                        fhir_medicationDispense_dosageInstruction_timing_repeat.boundsDuration = fhir_medicationDispense_dosageInstruction_timing_boundsDuration
-                                        PQQuantity(cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_period, fhir_medicationDispense_dosageInstruction_timing_boundsDuration)
-                    cda_entryRelationship_substanceAdministration_doseQuantity = cda_entryRelationship_substanceAdministration_entryRelationship_substanceAdministration.doseQuantity
-                    if cda_entryRelationship_substanceAdministration_doseQuantity is not None:
-                        fhir_medicationDispense_dosageInstruction = malac.models.fhir.r4.Dosage()
-                        fhir_medicationDispense.dosageInstruction.append(fhir_medicationDispense_dosageInstruction)
-                        fhir_medicationDispense_dosageInstruction_doseAndRate = malac.models.fhir.r4.Dosage_DoseAndRate()
-                        fhir_medicationDispense_dosageInstruction.doseAndRate.append(fhir_medicationDispense_dosageInstruction_doseAndRate)
-                        fhir_medicationDispense_dosageInstruction_doseAndRate_doseQuantity = malac.models.fhir.r4.Quantity()
-                        fhir_medicationDispense_dosageInstruction_doseAndRate.doseQuantity = fhir_medicationDispense_dosageInstruction_doseAndRate_doseQuantity
-                        PQQuantity(cda_entryRelationship_substanceAdministration_doseQuantity, fhir_medicationDispense_dosageInstruction_doseAndRate_doseQuantity)
-                if cda_entryRelationship_substanceAdministration_entryRelationship.sequenceNumber is not None:
-                    fhir_medicationDispense_dosageInstruction.sequence = malac.models.fhir.r4.integer()
-                    INT(cda_entryRelationship_substanceAdministration_entryRelationship.sequenceNumber, fhir_medicationDispense_dosageInstruction.sequence)
-        if cda_entryRelationship.sequenceNumber is not None:
-            fhir_medicationDispense_dosageInstruction.sequence = malac.models.fhir.r4.integer()
-            INT(cda_entryRelationship.sequenceNumber, fhir_medicationDispense_dosageInstruction.sequence)
+                                        TSDateTime(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_PIVLTS_phase, fhir_medicationDispense_dosageInstruction_timing_event)
+                                    cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_PIVLTS_period = cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_PIVLTS.period
+                                    if cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_PIVLTS_period is not None:
+                                        fhir_medicationDispense_dosageInstruction_timing_repeat.period = malac.models.fhir.r4.decimal(value=str(fhirpath.single(fhirpath_utils.get(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_PIVLTS_period,'value'))))
+                                        fhir_medicationDispense_dosageInstruction_timing_repeat.periodUnit = malac.models.fhir.r4.UnitsOfTime(value=fhirpath.single(fhirpath_utils.get(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_PIVLTS_period,'unit')))
+                cda_substanceAdministration_routeCode = cda_entryRelationship_substanceAdministration.routeCode
+                if cda_substanceAdministration_routeCode is not None:
+                    if fhir_medicationDispense_dosageInstruction.route is None:
+                        fhir_medicationDispense_dosageInstruction.route = malac.models.fhir.r4.CodeableConcept()
+                    fhir_medicationDispense_dosageInstruction_route = fhir_medicationDispense_dosageInstruction.route
+                    CECodeableConcept(cda_substanceAdministration_routeCode, fhir_medicationDispense_dosageInstruction_route)
     cda_entryRelationship_act = cda_entryRelationship.act
     if cda_entryRelationship_act is not None:
         if fhirpath.single(fhirpath_utils.equals(fhirpath_utils.get(cda_entryRelationship_act,'templateId','root'), '==', ['1.2.40.0.34.11.8.1.3.4'])):
@@ -88036,188 +88061,174 @@ def CdaEmedVerordnungEntryToFhir(cda, cda_section, cda_sbadm, fhir_composition, 
     fhir_patient_id = fhir_patient.id
     fhir_medicationRequest_subject_reference.reference = string(value=('urn:uuid:' + fhir_patient_id.value))
     fhir_medicationRequest_subject_reference.type_ = uri(value='Patient')
-    fhir_medicationRequest_medication_reference = malac.models.fhir.r4.Reference()
-    fhir_medicationRequest.medicationReference = fhir_medicationRequest_medication_reference
-    if fhir_medication.id is None:
-        fhir_medication.id = malac.models.fhir.r4.string()
-    fhir_medication_id = fhir_medication.id
-    fhir_medicationRequest_medication_reference.reference = string(value=('urn:uuid:' + fhir_medication_id.value))
-    fhir_medicationRequest_medication_reference.type_ = uri(value='Medication')
     cda_consumable = cda_sbadm.consumable
     if cda_consumable is not None:
         CdaEmedConsumableToFhirMedication(cda, cda_consumable, fhir_composition, fhir_medication, fhir_patient, fhir_bundle)
     for cda_author in cda_sbadm.author:
         CdaEmedVerordnungSbadmAuthorToFhir(cda, cda_author, fhir_composition, fhir_medication, fhir_medicationRequest, fhir_bundle)
     for cda_effectiveTime in cda_sbadm.effectiveTime or []:
-        for cda_substanceAdministration_effectiveTime in cda_sbadm.effectiveTime or []:
-            if type(cda_substanceAdministration_effectiveTime) is malac.models.cda.at_ext.PIVL_TS:
-                if not fhirpath_utils.get(cda_substanceAdministration_effectiveTime,'width') and (fhirpath_utils.get(cda_substanceAdministration_effectiveTime,'period') or fhirpath_utils.get(cda_substanceAdministration_effectiveTime,'phase')):
-                    fhir_medicationRequest_dosageInstruction = malac.models.fhir.r4.Dosage()
-                    fhir_medicationRequest.dosageInstruction.append(fhir_medicationRequest_dosageInstruction)
-                    fhir_medicationRequest_dosageInstruction_timing = malac.models.fhir.r4.Timing()
-                    fhir_medicationRequest_dosageInstruction.timing = fhir_medicationRequest_dosageInstruction_timing
-                    if fhir_medicationRequest_dosageInstruction_timing.repeat is None:
-                        fhir_medicationRequest_dosageInstruction_timing.repeat = malac.models.fhir.r4.Timing_Repeat()
-                    fhir_medicationRequest_dosageInstruction_timing_repeat = fhir_medicationRequest_dosageInstruction_timing.repeat
-                    cda_substanceAdministration_effectiveTime_period = cda_substanceAdministration_effectiveTime.period
-                    if cda_substanceAdministration_effectiveTime_period is not None:
+        if [v1 for v1 in fhirpath_utils.get(cda_sbadm,'templateId') if v1.root == '1.3.6.1.4.1.19376.1.9.1.3.6'] and [v2 for v2 in fhirpath_utils.get(cda_sbadm,'templateId') if v2.root == '1.3.6.1.4.1.19376.1.5.3.1.4.7.1'] and (not fhirpath_utils.get(cda_effectiveTime,'period') or not fhirpath_utils.get(cda_effectiveTime,'phase') or not fhirpath_utils.get(cda_effectiveTime,'comp')):
+            cda_effectiveTime_IVLTS_noWidth = cda_effectiveTime
+            if cda_effectiveTime_IVLTS_noWidth is not None:
+                if type(cda_effectiveTime_IVLTS_noWidth) is malac.models.cda.at_ext.IVL_TS:
+                    if (not fhirpath_utils.get(cda_effectiveTime_IVLTS_noWidth,'width') and not fhirpath_utils.get(cda_effectiveTime_IVLTS_noWidth,'low','nullFlavor') and not fhirpath_utils.get(cda_effectiveTime_IVLTS_noWidth,'high','nullFlavor')) or (not fhirpath_utils.get(cda_effectiveTime_IVLTS_noWidth,'low','nullFlavor') and fhirpath_utils.get(cda_effectiveTime_IVLTS_noWidth,'high','nullFlavor')) or (fhirpath_utils.get(cda_effectiveTime_IVLTS_noWidth,'low','nullFlavor') and not fhirpath_utils.get(cda_effectiveTime_IVLTS_noWidth,'high','nullFlavor')):
+                        fhir_medicationRequest_dosageInstruction = malac.models.fhir.r4.Dosage()
+                        fhir_medicationRequest.dosageInstruction.append(fhir_medicationRequest_dosageInstruction)
+                        fhir_medicationRequest_dosageInstruction_timing = malac.models.fhir.r4.Timing()
+                        fhir_medicationRequest_dosageInstruction.timing = fhir_medicationRequest_dosageInstruction_timing
+                        if fhir_medicationRequest_dosageInstruction_timing.repeat is None:
+                            fhir_medicationRequest_dosageInstruction_timing.repeat = malac.models.fhir.r4.Timing_Repeat()
+                        fhir_medicationRequest_dosageInstruction_timing_repeat = fhir_medicationRequest_dosageInstruction_timing.repeat
+                        fhir_medicationRequest_dosageInstruction_timing_boundsPeriod = malac.models.fhir.r4.Period()
+                        fhir_medicationRequest_dosageInstruction_timing_repeat.boundsPeriod = fhir_medicationRequest_dosageInstruction_timing_boundsPeriod
+                        IVLTSPeriod(cda_effectiveTime_IVLTS_noWidth, fhir_medicationRequest_dosageInstruction_timing_boundsPeriod)
+            cda_effectiveTime_IVLTS_width = cda_effectiveTime
+            if cda_effectiveTime_IVLTS_width is not None:
+                if type(cda_effectiveTime_IVLTS_width) is malac.models.cda.at_ext.IVL_TS:
+                    if fhirpath_utils.get(cda_effectiveTime_IVLTS_width,'width') and not fhirpath_utils.get(cda_effectiveTime_IVLTS_width,'low') and not fhirpath_utils.get(cda_effectiveTime_IVLTS_width,'high'):
+                        fhir_medicationRequest_dosageInstruction = malac.models.fhir.r4.Dosage()
+                        fhir_medicationRequest.dosageInstruction.append(fhir_medicationRequest_dosageInstruction)
+                        fhir_medicationRequest_dosageInstruction_timing = malac.models.fhir.r4.Timing()
+                        fhir_medicationRequest_dosageInstruction.timing = fhir_medicationRequest_dosageInstruction_timing
+                        if fhir_medicationRequest_dosageInstruction_timing.repeat is None:
+                            fhir_medicationRequest_dosageInstruction_timing.repeat = malac.models.fhir.r4.Timing_Repeat()
+                        fhir_medicationRequest_dosageInstruction_timing_repeat = fhir_medicationRequest_dosageInstruction_timing.repeat
                         fhir_medicationRequest_dosageInstruction_timing_boundsDuration = malac.models.fhir.r4.Duration()
                         fhir_medicationRequest_dosageInstruction_timing_repeat.boundsDuration = fhir_medicationRequest_dosageInstruction_timing_boundsDuration
-                        PQQuantity(cda_substanceAdministration_effectiveTime_period, fhir_medicationRequest_dosageInstruction_timing_boundsDuration)
-                    cda_substanceAdministration_effectiveTime_phase = cda_substanceAdministration_effectiveTime.phase
-                    if cda_substanceAdministration_effectiveTime_phase is not None:
-                        fhir_medicationRequest_dosageInstruction_timing_event = malac.models.fhir.r4.dateTime()
-                        fhir_medicationRequest_dosageInstruction_timing.event.append(fhir_medicationRequest_dosageInstruction_timing_event)
-                        TSDateTime(cda_substanceAdministration_effectiveTime_phase, fhir_medicationRequest_dosageInstruction_timing_event)
-        for cda_substanceAdministration_effectiveTime in cda_sbadm.effectiveTime or []:
-            if type(cda_substanceAdministration_effectiveTime) is malac.models.cda.at_ext.IVL_TS:
-                if fhirpath_utils.get(cda_substanceAdministration_effectiveTime,'width'):
-                    fhir_medicationRequest_dosageInstruction = malac.models.fhir.r4.Dosage()
-                    fhir_medicationRequest.dosageInstruction.append(fhir_medicationRequest_dosageInstruction)
-                    fhir_medicationRequest_dosageInstruction_timing = malac.models.fhir.r4.Timing()
-                    fhir_medicationRequest_dosageInstruction.timing = fhir_medicationRequest_dosageInstruction_timing
-                    if fhir_medicationRequest_dosageInstruction_timing.repeat is None:
-                        fhir_medicationRequest_dosageInstruction_timing.repeat = malac.models.fhir.r4.Timing_Repeat()
-                    fhir_medicationRequest_dosageInstruction_timing_repeat = fhir_medicationRequest_dosageInstruction_timing.repeat
-                    fhir_medicationRequest_dosageInstruction_timing_boundsDuration = malac.models.fhir.r4.Duration()
-                    fhir_medicationRequest_dosageInstruction_timing_repeat.boundsDuration = fhir_medicationRequest_dosageInstruction_timing_boundsDuration
-                    cda_substanceAdministration_effectiveTime_width = cda_substanceAdministration_effectiveTime.width
-                    if cda_substanceAdministration_effectiveTime_width is not None:
-                        PQQuantity(cda_substanceAdministration_effectiveTime_width, fhir_medicationRequest_dosageInstruction_timing_boundsDuration)
-        for cda_substanceAdministration_effectiveTime in cda_sbadm.effectiveTime or []:
-            if type(cda_substanceAdministration_effectiveTime) is malac.models.cda.at_ext.IVL_TS:
-                if not fhirpath_utils.get(cda_substanceAdministration_effectiveTime,'width') and (not fhirpath_utils.get(cda_substanceAdministration_effectiveTime,'low','nullFlavor') or not fhirpath_utils.get(cda_substanceAdministration_effectiveTime,'high','nullFlavor')):
-                    fhir_medicationRequest_dosageInstruction = malac.models.fhir.r4.Dosage()
-                    fhir_medicationRequest.dosageInstruction.append(fhir_medicationRequest_dosageInstruction)
-                    fhir_medicationRequest_dosageInstruction_timing = malac.models.fhir.r4.Timing()
-                    fhir_medicationRequest_dosageInstruction.timing = fhir_medicationRequest_dosageInstruction_timing
-                    if fhir_medicationRequest_dosageInstruction_timing.repeat is None:
-                        fhir_medicationRequest_dosageInstruction_timing.repeat = malac.models.fhir.r4.Timing_Repeat()
-                    fhir_medicationRequest_dosageInstruction_timing_repeat = fhir_medicationRequest_dosageInstruction_timing.repeat
-                    fhir_medicationRequest_dosageInstruction_timing_boundsPeriod = malac.models.fhir.r4.Period()
-                    fhir_medicationRequest_dosageInstruction_timing_repeat.boundsPeriod = fhir_medicationRequest_dosageInstruction_timing_boundsPeriod
-                    IVLTSPeriod(cda_substanceAdministration_effectiveTime, fhir_medicationRequest_dosageInstruction_timing_boundsPeriod)
-        cda_substanceAdministration_doseQuantity = cda_sbadm.doseQuantity
-        if cda_substanceAdministration_doseQuantity is not None:
+                        cda_effectiveTime_IVLTS_width_width = cda_effectiveTime_IVLTS_width.width
+                        if cda_effectiveTime_IVLTS_width_width is not None:
+                            PQQuantity(cda_effectiveTime_IVLTS_width_width, fhir_medicationRequest_dosageInstruction_timing_boundsDuration)
+    for cda_effectiveTime in cda_sbadm.effectiveTime or []:
+        if [v1 for v1 in fhirpath_utils.get(cda_sbadm,'templateId') if v1.root == '1.3.6.1.4.1.19376.1.9.1.3.6'] and [v2 for v2 in fhirpath_utils.get(cda_sbadm,'templateId') if v2.root == '1.3.6.1.4.1.19376.1.5.3.1.4.7.1'] and (fhirpath_utils.get(cda_effectiveTime,'period') or fhirpath_utils.get(cda_effectiveTime,'phase') or fhirpath_utils.get(cda_effectiveTime,'comp')):
             fhir_medicationRequest_dosageInstruction = malac.models.fhir.r4.Dosage()
             fhir_medicationRequest.dosageInstruction.append(fhir_medicationRequest_dosageInstruction)
-            fhir_medicationRequest_dosageInstruction_doseAndRate = malac.models.fhir.r4.Dosage_DoseAndRate()
-            fhir_medicationRequest_dosageInstruction.doseAndRate.append(fhir_medicationRequest_dosageInstruction_doseAndRate)
-            fhir_medicationRequest_dosageInstruction_doseAndRate_doseQuantity = malac.models.fhir.r4.Quantity()
-            fhir_medicationRequest_dosageInstruction_doseAndRate.doseQuantity = fhir_medicationRequest_dosageInstruction_doseAndRate_doseQuantity
-            PQQuantity(cda_substanceAdministration_doseQuantity, fhir_medicationRequest_dosageInstruction_doseAndRate_doseQuantity)
-        for cda_substanceAdministration_effectiveTime in cda_sbadm.effectiveTime or []:
-            if type(cda_substanceAdministration_effectiveTime) is malac.models.cda.at_ext.SXPR_TS:
-                for cda_substanceAdministration_effectiveTime_comp in cda_substanceAdministration_effectiveTime.comp or []:
-                    if type(cda_substanceAdministration_effectiveTime_comp) is malac.models.cda.at_ext.PIVL_TS:
-                        fhir_medicationRequest_dosageInstruction = malac.models.fhir.r4.Dosage()
-                        fhir_medicationRequest.dosageInstruction.append(fhir_medicationRequest_dosageInstruction)
-                        fhir_medicationRequest_dosageInstruction_timing = malac.models.fhir.r4.Timing()
-                        fhir_medicationRequest_dosageInstruction.timing = fhir_medicationRequest_dosageInstruction_timing
-                        cda_substanceAdministration_effectiveTime_comp_phase = cda_substanceAdministration_effectiveTime_comp.phase
-                        if cda_substanceAdministration_effectiveTime_comp_phase is not None:
+            fhir_medicationRequest_dosageInstruction_timing = malac.models.fhir.r4.Timing()
+            fhir_medicationRequest_dosageInstruction.timing = fhir_medicationRequest_dosageInstruction_timing
+            if fhir_medicationRequest_dosageInstruction_timing.repeat is None:
+                fhir_medicationRequest_dosageInstruction_timing.repeat = malac.models.fhir.r4.Timing_Repeat()
+            fhir_medicationRequest_dosageInstruction_timing_repeat = fhir_medicationRequest_dosageInstruction_timing.repeat
+            cda_effectiveTime_IVLTS_noWidth = cda_effectiveTime
+            if cda_effectiveTime_IVLTS_noWidth is not None:
+                if type(cda_effectiveTime_IVLTS_noWidth) is malac.models.cda.at_ext.IVL_TS:
+                    if (not fhirpath_utils.get(cda_effectiveTime_IVLTS_noWidth,'width') and not fhirpath_utils.get(cda_effectiveTime_IVLTS_noWidth,'low','nullFlavor') and not fhirpath_utils.get(cda_effectiveTime_IVLTS_noWidth,'high','nullFlavor')) or (not fhirpath_utils.get(cda_effectiveTime_IVLTS_noWidth,'low','nullFlavor') and fhirpath_utils.get(cda_effectiveTime_IVLTS_noWidth,'high','nullFlavor')) or (fhirpath_utils.get(cda_effectiveTime_IVLTS_noWidth,'low','nullFlavor') and not fhirpath_utils.get(cda_effectiveTime_IVLTS_noWidth,'high','nullFlavor')):
+                        fhir_medicationRequest_dosageInstruction_timing_boundsPeriod = malac.models.fhir.r4.Period()
+                        fhir_medicationRequest_dosageInstruction_timing_repeat.boundsPeriod = fhir_medicationRequest_dosageInstruction_timing_boundsPeriod
+                        IVLTSPeriod(cda_effectiveTime_IVLTS_noWidth, fhir_medicationRequest_dosageInstruction_timing_boundsPeriod)
+            cda_effectiveTime_IVLTS_width = cda_effectiveTime
+            if cda_effectiveTime_IVLTS_width is not None:
+                if type(cda_effectiveTime_IVLTS_width) is malac.models.cda.at_ext.IVL_TS:
+                    if fhirpath_utils.get(cda_effectiveTime_IVLTS_width,'width') and not fhirpath_utils.get(cda_effectiveTime_IVLTS_width,'low') and not fhirpath_utils.get(cda_effectiveTime_IVLTS_width,'high'):
+                        fhir_medicationRequest_dosageInstruction_timing_boundsDuration = malac.models.fhir.r4.Duration()
+                        fhir_medicationRequest_dosageInstruction_timing_repeat.boundsDuration = fhir_medicationRequest_dosageInstruction_timing_boundsDuration
+                        cda_effectiveTime_IVLTS_width_width = cda_effectiveTime_IVLTS_width.width
+                        if cda_effectiveTime_IVLTS_width_width is not None:
+                            PQQuantity(cda_effectiveTime_IVLTS_width_width, fhir_medicationRequest_dosageInstruction_timing_boundsDuration)
+            cda_effectiveTime_PIVLTS = cda_effectiveTime
+            if cda_effectiveTime_PIVLTS is not None:
+                if type(cda_effectiveTime_PIVLTS) is malac.models.cda.at_ext.PIVL_TS:
+                    if fhirpath_utils.get(cda_effectiveTime_PIVLTS,'period') or fhirpath_utils.get(cda_effectiveTime_PIVLTS,'phase'):
+                        cda_effectiveTime_PIVLTS_period = cda_effectiveTime_PIVLTS.period
+                        if cda_effectiveTime_PIVLTS_period is not None:
+                            fhir_medicationRequest_dosageInstruction_timing_repeat.period = malac.models.fhir.r4.decimal(value=str(fhirpath.single(fhirpath_utils.get(cda_effectiveTime_PIVLTS_period,'value'))))
+                            fhir_medicationRequest_dosageInstruction_timing_repeat.periodUnit = malac.models.fhir.r4.UnitsOfTime(value=fhirpath.single(fhirpath_utils.get(cda_effectiveTime_PIVLTS_period,'unit')))
+                        cda_effectiveTime_PIVLTS_phase = cda_effectiveTime_PIVLTS.phase
+                        if cda_effectiveTime_PIVLTS_phase is not None:
                             fhir_medicationRequest_dosageInstruction_timing_event = malac.models.fhir.r4.dateTime()
                             fhir_medicationRequest_dosageInstruction_timing.event.append(fhir_medicationRequest_dosageInstruction_timing_event)
-                            TSDateTime(cda_substanceAdministration_effectiveTime_comp_phase, fhir_medicationRequest_dosageInstruction_timing_event)
-                        cda_substanceAdministration_effectiveTime_comp_period = cda_substanceAdministration_effectiveTime_comp.period
-                        if cda_substanceAdministration_effectiveTime_comp_period is not None:
-                            if fhir_medicationRequest_dosageInstruction_timing.repeat is None:
-                                fhir_medicationRequest_dosageInstruction_timing.repeat = malac.models.fhir.r4.Timing_Repeat()
-                            fhir_medicationRequest_dosageInstruction_timing_repeat = fhir_medicationRequest_dosageInstruction_timing.repeat
-                            fhir_medicationRequest_dosageInstruction_timing_boundsDuration = malac.models.fhir.r4.Duration()
-                            fhir_medicationRequest_dosageInstruction_timing_repeat.boundsDuration = fhir_medicationRequest_dosageInstruction_timing_boundsDuration
-                            PQQuantity(cda_substanceAdministration_effectiveTime_comp_period, fhir_medicationRequest_dosageInstruction_timing_boundsDuration)
-                for cda_substanceAdministration_effectiveTime_comp in cda_substanceAdministration_effectiveTime.comp or []:
-                    if type(cda_substanceAdministration_effectiveTime_comp) is malac.models.cda.at_ext.EIVL_TS:
+                            TSDateTime(cda_effectiveTime_PIVLTS_phase, fhir_medicationRequest_dosageInstruction_timing_event)
+            cda_effectiveTime_SXPRTS = cda_effectiveTime
+            if cda_effectiveTime_SXPRTS is not None:
+                if type(cda_effectiveTime_SXPRTS) is malac.models.cda.at_ext.SXPR_TS:
+                    if fhirpath_utils.get(cda_effectiveTime_SXPRTS,'comp'):
+                        for cda_effectiveTime_SXPRTS_comp in cda_effectiveTime_SXPRTS.comp or []:
+                            if type(cda_effectiveTime_SXPRTS_comp) is malac.models.cda.at_ext.PIVL_TS:
+                                cda_effectiveTime_SXPRTS_comp_phase = cda_effectiveTime_SXPRTS_comp.phase
+                                if cda_effectiveTime_SXPRTS_comp_phase is not None:
+                                    fhir_medicationRequest_dosageInstruction_timing_event = malac.models.fhir.r4.dateTime()
+                                    fhir_medicationRequest_dosageInstruction_timing.event.append(fhir_medicationRequest_dosageInstruction_timing_event)
+                                    TSDateTime(cda_effectiveTime_SXPRTS_comp_phase, fhir_medicationRequest_dosageInstruction_timing_event)
+                                cda_effectiveTime_SXPRTS_comp_period = cda_effectiveTime_SXPRTS_comp.period
+                                if cda_effectiveTime_SXPRTS_comp_period is not None:
+                                    fhir_medicationRequest_dosageInstruction_timing_repeat.period = malac.models.fhir.r4.decimal(value=str(fhirpath.single(fhirpath_utils.get(cda_effectiveTime_SXPRTS_comp_period,'value'))))
+                                    fhir_medicationRequest_dosageInstruction_timing_repeat.periodUnit = malac.models.fhir.r4.UnitsOfTime(value=fhirpath.single(fhirpath_utils.get(cda_effectiveTime_SXPRTS_comp_period,'unit')))
+            cda_doseQuantity = cda_sbadm.doseQuantity
+            if cda_doseQuantity is not None:
+                fhir_medicationRequest_dosageInstruction_doseAndRate = malac.models.fhir.r4.Dosage_DoseAndRate()
+                fhir_medicationRequest_dosageInstruction.doseAndRate.append(fhir_medicationRequest_dosageInstruction_doseAndRate)
+                fhir_medicationRequest_dosageInstruction_doseAndRate_doseQuantity = malac.models.fhir.r4.Quantity()
+                fhir_medicationRequest_dosageInstruction_doseAndRate.doseQuantity = fhir_medicationRequest_dosageInstruction_doseAndRate_doseQuantity
+                PQQuantity(cda_doseQuantity, fhir_medicationRequest_dosageInstruction_doseAndRate_doseQuantity)
+            cda_substanceAdministration_routeCode = cda_sbadm.routeCode
+            if cda_substanceAdministration_routeCode is not None:
+                if fhir_medicationRequest_dosageInstruction.route is None:
+                    fhir_medicationRequest_dosageInstruction.route = malac.models.fhir.r4.CodeableConcept()
+                fhir_medicationRequest_dosageInstruction_route = fhir_medicationRequest_dosageInstruction.route
+                CECodeableConcept(cda_substanceAdministration_routeCode, fhir_medicationRequest_dosageInstruction_route)
+    for cda_effectiveTime in cda_sbadm.effectiveTime or []:
+        if [v1 for v1 in fhirpath_utils.get(cda_sbadm,'templateId') if v1.root == '1.3.6.1.4.1.19376.1.9.1.3.6'] and [v2 for v2 in fhirpath_utils.get(cda_sbadm,'templateId') if v2.root == '1.3.6.1.4.1.19376.1.5.3.1.4.9']:
+            cda_effectiveTime_IVLTS_noWidth = cda_effectiveTime
+            if cda_effectiveTime_IVLTS_noWidth is not None:
+                if type(cda_effectiveTime_IVLTS_noWidth) is malac.models.cda.at_ext.IVL_TS:
+                    if (not fhirpath_utils.get(cda_effectiveTime_IVLTS_noWidth,'width') and not fhirpath_utils.get(cda_effectiveTime_IVLTS_noWidth,'low','nullFlavor') and not fhirpath_utils.get(cda_effectiveTime_IVLTS_noWidth,'high','nullFlavor')) or (not fhirpath_utils.get(cda_effectiveTime_IVLTS_noWidth,'low','nullFlavor') and fhirpath_utils.get(cda_effectiveTime_IVLTS_noWidth,'high','nullFlavor')) or (fhirpath_utils.get(cda_effectiveTime_IVLTS_noWidth,'low','nullFlavor') and not fhirpath_utils.get(cda_effectiveTime_IVLTS_noWidth,'high','nullFlavor')):
                         fhir_medicationRequest_dosageInstruction = malac.models.fhir.r4.Dosage()
                         fhir_medicationRequest.dosageInstruction.append(fhir_medicationRequest_dosageInstruction)
                         fhir_medicationRequest_dosageInstruction_timing = malac.models.fhir.r4.Timing()
                         fhir_medicationRequest_dosageInstruction.timing = fhir_medicationRequest_dosageInstruction_timing
-                        cda_substanceAdministration_effectiveTime_comp_event = cda_substanceAdministration_effectiveTime_comp.event
-                        if cda_substanceAdministration_effectiveTime_comp_event is not None:
-                            cda_substanceAdministration_effectiveTime_comp_event_code = cda_substanceAdministration_effectiveTime_comp_event.code
-                            if cda_substanceAdministration_effectiveTime_comp_event_code is not None:
-                                if fhir_medicationRequest_dosageInstruction_timing.code is None:
-                                    fhir_medicationRequest_dosageInstruction_timing.code = malac.models.fhir.r4.CodeableConcept()
-                                fhir_medicationRequest_dosageInstruction_timing_code = fhir_medicationRequest_dosageInstruction_timing.code
-                                if fhir_medicationRequest_dosageInstruction_timing.repeat is None:
-                                    fhir_medicationRequest_dosageInstruction_timing.repeat = malac.models.fhir.r4.Timing_Repeat()
-                                fhir_medicationRequest_dosageInstruction_timing_repeat = fhir_medicationRequest_dosageInstruction_timing.repeat
-                                fhir_medicationRequest_dosageInstruction_timing_repeat.when.append(string(value=translate_single('elga-Einnahmezeitpunkte-fhir-event-timing', code=(cda_substanceAdministration_effectiveTime_comp_event_code if isinstance(cda_substanceAdministration_effectiveTime_comp_event_code, str) else cda_substanceAdministration_effectiveTime_comp_event_code.value), out_type='code')))
-                                CECodeableConcept(cda_substanceAdministration_effectiveTime_comp_event, fhir_medicationRequest_dosageInstruction_timing_code)
-                        cda_substanceAdministration_effectiveTime_comp_offset = cda_substanceAdministration_effectiveTime_comp.offset
-                        if cda_substanceAdministration_effectiveTime_comp_offset is not None:
-                            cda_substanceAdministration_effectiveTime_comp_offset_value = cda_substanceAdministration_effectiveTime_comp_offset.value
-                            if cda_substanceAdministration_effectiveTime_comp_offset_value is not None:
-                                fhir_medicationRequest_dosageInstruction_timing_repeat.offset = malac.models.fhir.r4.unsignedInt(value=cda_substanceAdministration_effectiveTime_comp_offset_value)
-    for cda_substanceAdministration_entryRelationship in cda_sbadm.entryRelationship or []:
-        if cda_substanceAdministration_entryRelationship.substanceAdministration is not None:
-            cda_substanceAdministration_entryRelationship_substanceAdministration = cda_substanceAdministration_entryRelationship.substanceAdministration
-            if cda_substanceAdministration_entryRelationship_substanceAdministration is not None:
-                for cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime in cda_substanceAdministration_entryRelationship_substanceAdministration.effectiveTime or []:
-                    if type(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime) is malac.models.cda.at_ext.EIVL_TS:
+                        if fhir_medicationRequest_dosageInstruction_timing.repeat is None:
+                            fhir_medicationRequest_dosageInstruction_timing.repeat = malac.models.fhir.r4.Timing_Repeat()
+                        fhir_medicationRequest_dosageInstruction_timing_repeat = fhir_medicationRequest_dosageInstruction_timing.repeat
+                        fhir_medicationRequest_dosageInstruction_timing_boundsPeriod = malac.models.fhir.r4.Period()
+                        fhir_medicationRequest_dosageInstruction_timing_repeat.boundsPeriod = fhir_medicationRequest_dosageInstruction_timing_boundsPeriod
+                        IVLTSPeriod(cda_effectiveTime_IVLTS_noWidth, fhir_medicationRequest_dosageInstruction_timing_boundsPeriod)
+            cda_effectiveTime_IVLTS_width = cda_effectiveTime
+            if cda_effectiveTime_IVLTS_width is not None:
+                if type(cda_effectiveTime_IVLTS_width) is malac.models.cda.at_ext.IVL_TS:
+                    if fhirpath_utils.get(cda_effectiveTime_IVLTS_width,'width') and not fhirpath_utils.get(cda_effectiveTime_IVLTS_width,'low') and not fhirpath_utils.get(cda_effectiveTime_IVLTS_width,'high'):
                         fhir_medicationRequest_dosageInstruction = malac.models.fhir.r4.Dosage()
-                        fhir_medicationRequest_dosageInstruction = fhir_medicationRequest_dosageInstruction
+                        fhir_medicationRequest.dosageInstruction.append(fhir_medicationRequest_dosageInstruction)
                         fhir_medicationRequest_dosageInstruction_timing = malac.models.fhir.r4.Timing()
                         fhir_medicationRequest_dosageInstruction.timing = fhir_medicationRequest_dosageInstruction_timing
-                        cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_event = cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime.event
-                        if cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_event is not None:
-                            cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_event_code = cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_event.code
-                            if cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_event_code is not None:
+                        if fhir_medicationRequest_dosageInstruction_timing.repeat is None:
+                            fhir_medicationRequest_dosageInstruction_timing.repeat = malac.models.fhir.r4.Timing_Repeat()
+                        fhir_medicationRequest_dosageInstruction_timing_repeat = fhir_medicationRequest_dosageInstruction_timing.repeat
+                        fhir_medicationRequest_dosageInstruction_timing_boundsDuration = malac.models.fhir.r4.Duration()
+                        fhir_medicationRequest_dosageInstruction_timing_repeat.boundsDuration = fhir_medicationRequest_dosageInstruction_timing_boundsDuration
+                        cda_effectiveTime_IVLTS_width_width = cda_effectiveTime_IVLTS_width.width
+                        if cda_effectiveTime_IVLTS_width_width is not None:
+                            PQQuantity(cda_effectiveTime_IVLTS_width_width, fhir_medicationRequest_dosageInstruction_timing_boundsDuration)
+    for cda_substanceAdministration_entryRelationship in cda_sbadm.entryRelationship or []:
+        if [v1 for v1 in fhirpath_utils.get(cda_sbadm,'templateId') if v1.root == '1.3.6.1.4.1.19376.1.5.3.1.4.9'] and cda_substanceAdministration_entryRelationship.substanceAdministration is not None:
+            fhir_medicationRequest_dosageInstruction = malac.models.fhir.r4.Dosage()
+            fhir_medicationRequest.dosageInstruction.append(fhir_medicationRequest_dosageInstruction)
+            fhir_medicationRequest_dosageInstruction_timing = malac.models.fhir.r4.Timing()
+            fhir_medicationRequest_dosageInstruction.timing = fhir_medicationRequest_dosageInstruction_timing
+            cda_substanceAdministration_entryRelationship_substanceAdministration = cda_substanceAdministration_entryRelationship.substanceAdministration
+            if cda_substanceAdministration_entryRelationship_substanceAdministration is not None:
+                if cda_substanceAdministration_entryRelationship.sequenceNumber is not None:
+                    fhir_medicationRequest_dosageInstruction.sequence = malac.models.fhir.r4.integer()
+                    INT(cda_substanceAdministration_entryRelationship.sequenceNumber, fhir_medicationRequest_dosageInstruction.sequence)
+                for cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS in cda_substanceAdministration_entryRelationship_substanceAdministration.effectiveTime or []:
+                    if type(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS) is malac.models.cda.at_ext.EIVL_TS:
+                        cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS_event = cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS.event
+                        if cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS_event is not None:
+                            cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS_event_code = cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS_event.code
+                            if cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS_event_code is not None:
                                 if fhir_medicationRequest_dosageInstruction_timing.code is None:
                                     fhir_medicationRequest_dosageInstruction_timing.code = malac.models.fhir.r4.CodeableConcept()
                                 fhir_medicationRequest_dosageInstruction_timing_code = fhir_medicationRequest_dosageInstruction_timing.code
                                 if fhir_medicationRequest_dosageInstruction_timing.repeat is None:
                                     fhir_medicationRequest_dosageInstruction_timing.repeat = malac.models.fhir.r4.Timing_Repeat()
                                 fhir_medicationRequest_dosageInstruction_timing_repeat = fhir_medicationRequest_dosageInstruction_timing.repeat
-                                fhir_medicationRequest_dosageInstruction_timing_repeat.when.append(string(value=translate_single('elga-Einnahmezeitpunkte-fhir-event-timing', code=(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_event_code if isinstance(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_event_code, str) else cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_event_code.value), out_type='code')))
-                                CECodeableConcept(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_event, fhir_medicationRequest_dosageInstruction_timing_code)
-                        cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_offset = cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime.offset
-                        if cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_offset is not None:
-                            cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_offset_value = cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_offset.value
-                            if cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_offset_value is not None:
-                                fhir_medicationRequest_dosageInstruction_timing_repeat.offset = malac.models.fhir.r4.unsignedInt(value=cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_offset_value)
-                for cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime in cda_substanceAdministration_entryRelationship_substanceAdministration.effectiveTime or []:
-                    if type(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime) is malac.models.cda.at_ext.SXPR_TS:
-                        for cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp in cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime.comp or []:
-                            if type(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp) is malac.models.cda.at_ext.EIVL_TS:
-                                fhir_medicationRequest_dosageInstruction = malac.models.fhir.r4.Dosage()
-                                fhir_medicationRequest_dosageInstruction = fhir_medicationRequest_dosageInstruction
-                                fhir_medicationRequest_dosageInstruction_timing = malac.models.fhir.r4.Timing()
-                                fhir_medicationRequest_dosageInstruction.timing = fhir_medicationRequest_dosageInstruction_timing
-                                cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_event = cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp.event
-                                if cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_event is not None:
-                                    cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_event_code = cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_event.code
-                                    if cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_event_code is not None:
-                                        if fhir_medicationRequest_dosageInstruction_timing.code is None:
-                                            fhir_medicationRequest_dosageInstruction_timing.code = malac.models.fhir.r4.CodeableConcept()
-                                        fhir_medicationRequest_dosageInstruction_timing_code = fhir_medicationRequest_dosageInstruction_timing.code
-                                        if fhir_medicationRequest_dosageInstruction_timing.repeat is None:
-                                            fhir_medicationRequest_dosageInstruction_timing.repeat = malac.models.fhir.r4.Timing_Repeat()
-                                        fhir_medicationRequest_dosageInstruction_timing_repeat = fhir_medicationRequest_dosageInstruction_timing.repeat
-                                        fhir_medicationRequest_dosageInstruction_timing_repeat.when.append(string(value=translate_single('elga-Einnahmezeitpunkte-fhir-event-timing', code=(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_event_code if isinstance(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_event_code, str) else cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_event_code.value), out_type='code')))
-                                        CECodeableConcept(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_event, fhir_medicationRequest_dosageInstruction_timing_code)
-                                cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_offset = cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp.offset
-                                if cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_offset is not None:
-                                    cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_offset_value = cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_offset.value
-                                    if cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_offset_value is not None:
-                                        fhir_medicationRequest_dosageInstruction_timing_repeat.offset = malac.models.fhir.r4.unsignedInt(value=cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_offset_value)
-                        for cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp in cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime.comp or []:
-                            if type(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp) is malac.models.cda.at_ext.PIVL_TS:
-                                fhir_medicationRequest_dosageInstruction = malac.models.fhir.r4.Dosage()
-                                fhir_medicationRequest_dosageInstruction = fhir_medicationRequest_dosageInstruction
-                                fhir_medicationRequest_dosageInstruction_timing = malac.models.fhir.r4.Timing()
-                                fhir_medicationRequest_dosageInstruction.timing = fhir_medicationRequest_dosageInstruction_timing
-                                cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_phase = cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp.phase
-                                if cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_phase is not None:
-                                    fhir_medicationRequest_dosageInstruction_timing_event = malac.models.fhir.r4.dateTime()
-                                    fhir_medicationRequest_dosageInstruction_timing.event.append(fhir_medicationRequest_dosageInstruction_timing_event)
-                                    TSDateTime(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_phase, fhir_medicationRequest_dosageInstruction_timing_event)
-                                cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_period = cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp.period
-                                if cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_period is not None:
-                                    fhir_medicationRequest_dosageInstruction_timing_boundsDuration = malac.models.fhir.r4.Duration()
-                                    fhir_medicationRequest_dosageInstruction_timing.boundsDuration = fhir_medicationRequest_dosageInstruction_timing_boundsDuration
-                                    PQQuantity(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_comp_period, fhir_medicationRequest_dosageInstruction_timing_boundsDuration)
+                                fhir_medicationRequest_dosageInstruction_timing_repeat.when.append(string(value=translate_single('elga-Einnahmezeitpunkte-fhir-event-timing', code=(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS_event_code if isinstance(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS_event_code, str) else cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS_event_code.value), out_type='code')))
+                                CECodeableConcept(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS_event, fhir_medicationRequest_dosageInstruction_timing_code)
+                        cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS_offset = cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS.offset
+                        if cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS_offset is not None:
+                            cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS_offset_value = cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS_offset.value
+                            if cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS_offset_value is not None:
+                                if fhir_medicationRequest_dosageInstruction_timing.repeat is None:
+                                    fhir_medicationRequest_dosageInstruction_timing.repeat = malac.models.fhir.r4.Timing_Repeat()
+                                fhir_medicationRequest_dosageInstruction_timing_repeat = fhir_medicationRequest_dosageInstruction_timing.repeat
+                                fhir_medicationRequest_dosageInstruction_timing_repeat.offset = malac.models.fhir.r4.unsignedInt(value=cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS_offset_value)
                 cda_substanceAdministration_entryRelationship_substanceAdministration_doseQuantity = cda_substanceAdministration_entryRelationship_substanceAdministration.doseQuantity
                 if cda_substanceAdministration_entryRelationship_substanceAdministration_doseQuantity is not None:
                     fhir_medicationRequest_dosageInstruction_doseAndRate = malac.models.fhir.r4.Dosage_DoseAndRate()
@@ -88225,9 +88236,44 @@ def CdaEmedVerordnungEntryToFhir(cda, cda_section, cda_sbadm, fhir_composition, 
                     fhir_medicationRequest_dosageInstruction_doseAndRate_doseQuantity = malac.models.fhir.r4.Quantity()
                     fhir_medicationRequest_dosageInstruction_doseAndRate.doseQuantity = fhir_medicationRequest_dosageInstruction_doseAndRate_doseQuantity
                     PQQuantity(cda_substanceAdministration_entryRelationship_substanceAdministration_doseQuantity, fhir_medicationRequest_dosageInstruction_doseAndRate_doseQuantity)
-            if cda_substanceAdministration_entryRelationship.sequenceNumber is not None:
-                fhir_medicationRequest_dosageInstruction.sequence = malac.models.fhir.r4.integer()
-                INT(cda_substanceAdministration_entryRelationship.sequenceNumber, fhir_medicationRequest_dosageInstruction.sequence)
+                for cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS in cda_substanceAdministration_entryRelationship_substanceAdministration.effectiveTime or []:
+                    if type(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS) is malac.models.cda.at_ext.SXPR_TS:
+                        for cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS in cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS.comp or []:
+                            if type(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS) is malac.models.cda.at_ext.EIVL_TS:
+                                cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS_event = cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS.event
+                                if cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS_event is not None:
+                                    cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS_event_code = cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS_event.code
+                                    if cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS_event_code is not None:
+                                        if fhir_medicationRequest_dosageInstruction_timing.code is None:
+                                            fhir_medicationRequest_dosageInstruction_timing.code = malac.models.fhir.r4.CodeableConcept()
+                                        fhir_medicationRequest_dosageInstruction_timing_code = fhir_medicationRequest_dosageInstruction_timing.code
+                                        if fhir_medicationRequest_dosageInstruction_timing.repeat is None:
+                                            fhir_medicationRequest_dosageInstruction_timing.repeat = malac.models.fhir.r4.Timing_Repeat()
+                                        fhir_medicationRequest_dosageInstruction_timing_repeat = fhir_medicationRequest_dosageInstruction_timing.repeat
+                                        fhir_medicationRequest_dosageInstruction_timing_repeat.when.append(string(value=translate_single('elga-Einnahmezeitpunkte-fhir-event-timing', code=(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS_event_code if isinstance(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS_event_code, str) else cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS_event_code.value), out_type='code')))
+                                        CECodeableConcept(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS_event, fhir_medicationRequest_dosageInstruction_timing_code)
+                                cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS_offset = cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS.offset
+                                if cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS_offset is not None:
+                                    cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS_offset_value = cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS_offset.value
+                                    if cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS_offset_value is not None:
+                                        fhir_medicationRequest_dosageInstruction_timing_repeat.offset = malac.models.fhir.r4.unsignedInt(value=cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS_offset_value)
+                        for cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_PIVLTS in cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS.comp or []:
+                            if type(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_PIVLTS) is malac.models.cda.at_ext.PIVL_TS:
+                                cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_PIVLTS_phase = cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_PIVLTS.phase
+                                if cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_PIVLTS_phase is not None:
+                                    fhir_medicationRequest_dosageInstruction_timing_event = malac.models.fhir.r4.dateTime()
+                                    fhir_medicationRequest_dosageInstruction_timing.event.append(fhir_medicationRequest_dosageInstruction_timing_event)
+                                    TSDateTime(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_PIVLTS_phase, fhir_medicationRequest_dosageInstruction_timing_event)
+                                cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_PIVLTS_period = cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_PIVLTS.period
+                                if cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_PIVLTS_period is not None:
+                                    fhir_medicationRequest_dosageInstruction_timing_repeat.period = malac.models.fhir.r4.decimal(value=str(fhirpath.single(fhirpath_utils.get(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_PIVLTS_period,'value'))))
+                                    fhir_medicationRequest_dosageInstruction_timing_repeat.periodUnit = malac.models.fhir.r4.UnitsOfTime(value=fhirpath.single(fhirpath_utils.get(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_PIVLTS_period,'unit')))
+            cda_substanceAdministration_routeCode = cda_sbadm.routeCode
+            if cda_substanceAdministration_routeCode is not None:
+                if fhir_medicationRequest_dosageInstruction.route is None:
+                    fhir_medicationRequest_dosageInstruction.route = malac.models.fhir.r4.CodeableConcept()
+                fhir_medicationRequest_dosageInstruction_route = fhir_medicationRequest_dosageInstruction.route
+                CECodeableConcept(cda_substanceAdministration_routeCode, fhir_medicationRequest_dosageInstruction_route)
     cda_substanceAdministration_repeatNumber = cda_sbadm.repeatNumber
     if cda_substanceAdministration_repeatNumber is not None:
         if cda_substanceAdministration_repeatNumber.nullFlavor is None:
@@ -88238,14 +88284,6 @@ def CdaEmedVerordnungEntryToFhir(cda, cda_section, cda_sbadm, fhir_composition, 
                 fhir_medicationRequest_dispenseRequest.numberOfRepeatsAllowed = malac.models.fhir.r4.unsignedInt()
             fhir_medicationRequest_dispenseRequest_numberOfRepeatsAllowed = fhir_medicationRequest_dispenseRequest.numberOfRepeatsAllowed
             INT(cda_substanceAdministration_repeatNumber, fhir_medicationRequest_dispenseRequest_numberOfRepeatsAllowed)
-    cda_substanceAdministration_routeCode = cda_sbadm.routeCode
-    if cda_substanceAdministration_routeCode is not None:
-        fhir_medicationRequest_dosageInstruction = malac.models.fhir.r4.Dosage()
-        fhir_medicationRequest_dosageInstruction = fhir_medicationRequest_dosageInstruction
-        if fhir_medicationRequest_dosageInstruction.route is None:
-            fhir_medicationRequest_dosageInstruction.route = malac.models.fhir.r4.CodeableConcept()
-        fhir_medicationRequest_dosageInstruction_route = fhir_medicationRequest_dosageInstruction.route
-        CECodeableConcept(cda_substanceAdministration_routeCode, fhir_medicationRequest_dosageInstruction_route)
     for cda_substanceAdministration_entryRelationship in cda_sbadm.entryRelationship or []:
         cda_substanceAdministration_entryRelationship_supply = cda_substanceAdministration_entryRelationship.supply
         if cda_substanceAdministration_entryRelationship_supply is not None:
@@ -88283,6 +88321,8 @@ def CdaEmedVerordnungEntryToFhir(cda, cda_section, cda_sbadm, fhir_composition, 
                                             fhir_substring_01 = string(value=fhirpath.single(fhirpath_utils.substring(fhir_string,fhirpath_utils.indexof(fhir_string, fhirpath_utils.substring(cda_entryRelationship_act_entryRelationship_act_reference_value,[1],[])),[])))
                                             fhir_substring_02 = malac.models.fhir.r4.string()
                                             fhir_substring_02 = string(value=fhirpath.single(fhirpath_utils.substring(fhir_substring_01,fhirpath_utils.add(fhirpath_utils.indexof(fhir_substring_01, ['>']), [1]),[])))
+                                            fhir_medicationRequest_dosageInstruction = malac.models.fhir.r4.Dosage()
+                                            fhir_medicationRequest.dosageInstruction.append(fhir_medicationRequest_dosageInstruction)
                                             fhir_medicationRequest_dosageInstruction.patientInstruction = string(value=fhirpath.single(fhirpath_utils.substring(fhir_substring_02,[0],fhirpath_utils.indexof(fhir_substring_02, ['<']))))
                 for cda_entryRelationship_act_entryRelationship in cda_entryRelationship_act.entryRelationship or []:
                     if fhirpath.single(fhirpath_utils.equals(fhirpath_utils.get(cda_entryRelationship_act_entryRelationship,'act','code','code'), '==', ['ALTEIN'])):
@@ -88308,6 +88348,8 @@ def CdaEmedVerordnungEntryToFhir(cda, cda_section, cda_sbadm, fhir_composition, 
                                             fhir_substring_02 = malac.models.fhir.r4.string()
                                             if fhir_substring_02 is not None:
                                                 fhir_substring_02 = string(value=fhirpath.single(fhirpath_utils.substring(fhir_substring_01,fhirpath_utils.add(fhirpath_utils.indexof(fhir_substring_01, ['>']), [1]),[])))
+                                            fhir_medicationRequest_dosageInstruction = malac.models.fhir.r4.Dosage()
+                                            fhir_medicationRequest.dosageInstruction.append(fhir_medicationRequest_dosageInstruction)
                                             fhir_medicationRequest_dosageInstruction.text = string(value=fhirpath.single(fhirpath_utils.substring(fhir_substring_02,[0],fhirpath_utils.indexof(fhir_substring_02, ['<']))))
                 for cda_entryRelationship_act_entryRelationship in cda_entryRelationship_act.entryRelationship or []:
                     if fhirpath.single(fhirpath_utils.equals(fhirpath_utils.get(cda_entryRelationship_act_entryRelationship,'act','code','code'), '==', ['ARZNEIINFO'])):
@@ -88366,6 +88408,8 @@ def CdaEmedVerordnungEntryToFhir(cda, cda_section, cda_sbadm, fhir_composition, 
                                             fhir_substring_02 = malac.models.fhir.r4.string()
                                             if fhir_substring_02 is not None:
                                                 fhir_substring_02 = string(value=fhirpath.single(fhirpath_utils.substring(fhir_substring_01,fhirpath_utils.add(fhirpath_utils.indexof(fhir_substring_01, ['>']), [1]),[])))
+                                            fhir_medicationRequest_dosageInstruction = malac.models.fhir.r4.Dosage()
+                                            fhir_medicationRequest.dosageInstruction.append(fhir_medicationRequest_dosageInstruction)
                                             fhir_medicationRequest_dosageInstruction.text = string(value=fhirpath.single(fhirpath_utils.substring(fhir_substring_02,[0],fhirpath_utils.indexof(fhir_substring_02, ['<']))))
                 for cda_entryRelationship_act_entryRelationship in cda_entryRelationship_act.entryRelationship or []:
                     if fhirpath.single(fhirpath_utils.equals(fhirpath_utils.get(cda_entryRelationship_act_entryRelationship,'act','code','code'), '==', ['MAGZUB'])):
