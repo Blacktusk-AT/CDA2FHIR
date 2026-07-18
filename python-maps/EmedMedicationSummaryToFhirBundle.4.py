@@ -87610,10 +87610,12 @@ def CdaEmedAbgabeSupplyAuthorToFhir(cda, cda_author, fhir_composition, fhir_medi
                 fhir_device_id = string(value=str(uuid.uuid4()))
                 fhir_device.id = fhir_device_id
                 fhir_bundle_entry.fullUrl = uri(value=('urn:uuid:' + fhir_device_id.value))
-                fhir_composition_author_reference = malac.models.fhir.r4.Reference()
-                fhir_composition.author.append(fhir_composition_author_reference)
-                fhir_composition_author_reference.reference = string(value=('urn:uuid:' + fhir_device_id.value))
-                fhir_composition_author_reference.type_ = uri(value='Device')
+                fhir_medicationDispense_performer = malac.models.fhir.r4.MedicationDispense_Performer()
+                fhir_medicationDispense.performer.append(fhir_medicationDispense_performer)
+                fhir_medicationDispense_performer_reference = malac.models.fhir.r4.Reference()
+                fhir_medicationDispense_performer.actor = fhir_medicationDispense_performer_reference
+                fhir_medicationDispense_performer_reference.reference = string(value=('urn:uuid:' + fhir_device_id.value))
+                fhir_medicationDispense_performer_reference.type_ = uri(value='Device')
                 CdaAuthorToFhirDevice(cda_author, fhir_device, fhir_bundle)
 
 def CdaEmedAbgabeEntryRelationshipToFhir(cda, cda_section, cda_entryRelationship, fhir_composition, fhir_medication, fhir_medicationDispense, fhir_medicationRequest, fhir_bundle):
@@ -87863,11 +87865,20 @@ def CdaEmedAbgabeEntryRelationshipToFhir(cda, cda_section, cda_entryRelationship
                                         fhir_medicationDispense_dosageInstruction_timing_repeat.periodUnit = malac.models.fhir.r4.UnitsOfTime(value=fhirpath.single(fhirpath_utils.get(cda_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_period,'unit')))
             cda_entryRelationship_substanceAdministration_doseQuantity = cda_entryRelationship_substanceAdministration.doseQuantity
             if cda_entryRelationship_substanceAdministration_doseQuantity is not None:
-                fhir_medicationDispense_dosageInstruction_doseAndRate = malac.models.fhir.r4.Dosage_DoseAndRate()
-                fhir_medicationDispense_dosageInstruction.doseAndRate.append(fhir_medicationDispense_dosageInstruction_doseAndRate)
-                fhir_medicationDispense_dosageInstruction_doseAndRate_doseQuantity = malac.models.fhir.r4.Quantity()
-                fhir_medicationDispense_dosageInstruction_doseAndRate.doseQuantity = fhir_medicationDispense_dosageInstruction_doseAndRate_doseQuantity
-                PQQuantity(cda_entryRelationship_substanceAdministration_doseQuantity, fhir_medicationDispense_dosageInstruction_doseAndRate_doseQuantity)
+                if cda_entryRelationship_substanceAdministration_doseQuantity.low is None or cda_entryRelationship_substanceAdministration_doseQuantity.high is None and cda_entryRelationship_substanceAdministration_doseQuantity.center is None and cda_entryRelationship_substanceAdministration_doseQuantity.width is None:
+                    fhir_medicationDispense_dosageInstruction_doseAndRate = malac.models.fhir.r4.Dosage_DoseAndRate()
+                    fhir_medicationDispense_dosageInstruction.doseAndRate.append(fhir_medicationDispense_dosageInstruction_doseAndRate)
+                    fhir_medicationDispense_dosageInstruction_doseAndRate_doseQuantity = malac.models.fhir.r4.Quantity()
+                    fhir_medicationDispense_dosageInstruction_doseAndRate.doseQuantity = fhir_medicationDispense_dosageInstruction_doseAndRate_doseQuantity
+                    PQQuantity(cda_entryRelationship_substanceAdministration_doseQuantity, fhir_medicationDispense_dosageInstruction_doseAndRate_doseQuantity)
+            cda_entryRelationship_substanceAdministration_doseQuantity = cda_entryRelationship_substanceAdministration.doseQuantity
+            if cda_entryRelationship_substanceAdministration_doseQuantity is not None:
+                if cda_entryRelationship_substanceAdministration_doseQuantity.low is not None or cda_entryRelationship_substanceAdministration_doseQuantity.high is not None and cda_entryRelationship_substanceAdministration_doseQuantity.center is None and cda_entryRelationship_substanceAdministration_doseQuantity.width is None:
+                    fhir_medicationDispense_dosageInstruction_doseAndRate = malac.models.fhir.r4.Dosage_DoseAndRate()
+                    fhir_medicationDispense_dosageInstruction.doseAndRate.append(fhir_medicationDispense_dosageInstruction_doseAndRate)
+                    fhir_medicationDispense_dosageInstruction_doseAndRate_doseRange = malac.models.fhir.r4.Range()
+                    fhir_medicationDispense_dosageInstruction_doseAndRate.doseRange = fhir_medicationDispense_dosageInstruction_doseAndRate_doseRange
+                    IVLPQRange(cda_entryRelationship_substanceAdministration_doseQuantity, fhir_medicationDispense_dosageInstruction_doseAndRate_doseRange)
             cda_substanceAdministration_routeCode = cda_entryRelationship_substanceAdministration.routeCode
             if cda_substanceAdministration_routeCode is not None:
                 if fhir_medicationDispense_dosageInstruction.route is None:
@@ -87881,7 +87892,7 @@ def CdaEmedAbgabeEntryRelationshipToFhir(cda, cda_section, cda_entryRelationship
                 if type(cda_effectiveTime_IVLTS_noWidth) is malac.models.cda.at_ext.IVL_TS:
                     if (not fhirpath_utils.get(cda_effectiveTime_IVLTS_noWidth,'width') and not fhirpath_utils.get(cda_effectiveTime_IVLTS_noWidth,'low','nullFlavor') and not fhirpath_utils.get(cda_effectiveTime_IVLTS_noWidth,'high','nullFlavor')) or (not fhirpath_utils.get(cda_effectiveTime_IVLTS_noWidth,'low','nullFlavor') and fhirpath_utils.get(cda_effectiveTime_IVLTS_noWidth,'high','nullFlavor')) or (fhirpath_utils.get(cda_effectiveTime_IVLTS_noWidth,'low','nullFlavor') and not fhirpath_utils.get(cda_effectiveTime_IVLTS_noWidth,'high','nullFlavor')):
                         fhir_medicationDispense_dosageInstruction = malac.models.fhir.r4.Dosage()
-                        fhir_medicationDispense_dosageInstruction = fhir_medicationDispense_dosageInstruction
+                        fhir_medicationDispense.dosageInstruction.append(fhir_medicationDispense_dosageInstruction)
                         fhir_medicationDispense_dosageInstruction_timing = malac.models.fhir.r4.Timing()
                         fhir_medicationDispense_dosageInstruction.timing = fhir_medicationDispense_dosageInstruction_timing
                         if fhir_medicationDispense_dosageInstruction_timing.repeat is None:
@@ -87894,7 +87905,7 @@ def CdaEmedAbgabeEntryRelationshipToFhir(cda, cda_section, cda_entryRelationship
                 if type(cda_effectiveTime_IVLTS_width) is malac.models.cda.at_ext.IVL_TS:
                     if fhirpath_utils.get(cda_effectiveTime_IVLTS_width,'width') and not fhirpath_utils.get(cda_effectiveTime_IVLTS_width,'low') and not fhirpath_utils.get(cda_effectiveTime_IVLTS_width,'high'):
                         fhir_medicationDispense_dosageInstruction = malac.models.fhir.r4.Dosage()
-                        fhir_medicationDispense_dosageInstruction = fhir_medicationDispense_dosageInstruction
+                        fhir_medicationDispense.dosageInstruction.append(fhir_medicationDispense_dosageInstruction)
                         fhir_medicationDispense_dosageInstruction_timing = malac.models.fhir.r4.Timing()
                         fhir_medicationDispense_dosageInstruction.timing = fhir_medicationDispense_dosageInstruction_timing
                         if fhir_medicationDispense_dosageInstruction_timing.repeat is None:
@@ -87939,11 +87950,20 @@ def CdaEmedAbgabeEntryRelationshipToFhir(cda, cda_section, cda_entryRelationship
                                     fhir_medicationDispense_dosageInstruction_timing_repeat.offset = malac.models.fhir.r4.unsignedInt(value=cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS_offset_value)
                     cda_substanceAdministration_entryRelationship_substanceAdministration_doseQuantity = cda_substanceAdministration_entryRelationship_substanceAdministration.doseQuantity
                     if cda_substanceAdministration_entryRelationship_substanceAdministration_doseQuantity is not None:
-                        fhir_medicationDispense_dosageInstruction_doseAndRate = malac.models.fhir.r4.Dosage_DoseAndRate()
-                        fhir_medicationDispense_dosageInstruction.doseAndRate.append(fhir_medicationDispense_dosageInstruction_doseAndRate)
-                        fhir_medicationDispense_dosageInstruction_doseAndRate_doseQuantity = malac.models.fhir.r4.Quantity()
-                        fhir_medicationDispense_dosageInstruction_doseAndRate.doseQuantity = fhir_medicationDispense_dosageInstruction_doseAndRate_doseQuantity
-                        PQQuantity(cda_substanceAdministration_entryRelationship_substanceAdministration_doseQuantity, fhir_medicationDispense_dosageInstruction_doseAndRate_doseQuantity)
+                        if cda_substanceAdministration_entryRelationship_substanceAdministration_doseQuantity.low is None or cda_substanceAdministration_entryRelationship_substanceAdministration_doseQuantity.high is None and cda_substanceAdministration_entryRelationship_substanceAdministration_doseQuantity.center is None and cda_substanceAdministration_entryRelationship_substanceAdministration_doseQuantity.width is None:
+                            fhir_medicationDispense_dosageInstruction_doseAndRate = malac.models.fhir.r4.Dosage_DoseAndRate()
+                            fhir_medicationDispense_dosageInstruction.doseAndRate.append(fhir_medicationDispense_dosageInstruction_doseAndRate)
+                            fhir_medicationDispense_dosageInstruction_doseAndRate_doseQuantity = malac.models.fhir.r4.Quantity()
+                            fhir_medicationDispense_dosageInstruction_doseAndRate.doseQuantity = fhir_medicationDispense_dosageInstruction_doseAndRate_doseQuantity
+                            PQQuantity(cda_substanceAdministration_entryRelationship_substanceAdministration_doseQuantity, fhir_medicationDispense_dosageInstruction_doseAndRate_doseQuantity)
+                    cda_substanceAdministration_entryRelationship_substanceAdministration_doseQuantity = cda_substanceAdministration_entryRelationship_substanceAdministration.doseQuantity
+                    if cda_substanceAdministration_entryRelationship_substanceAdministration_doseQuantity is not None:
+                        if cda_substanceAdministration_entryRelationship_substanceAdministration_doseQuantity.low is not None or cda_substanceAdministration_entryRelationship_substanceAdministration_doseQuantity.high is not None and cda_substanceAdministration_entryRelationship_substanceAdministration_doseQuantity.center is None and cda_substanceAdministration_entryRelationship_substanceAdministration_doseQuantity.width is None:
+                            fhir_medicationDispense_dosageInstruction_doseAndRate = malac.models.fhir.r4.Dosage_DoseAndRate()
+                            fhir_medicationDispense_dosageInstruction.doseAndRate.append(fhir_medicationDispense_dosageInstruction_doseAndRate)
+                            fhir_medicationDispense_dosageInstruction_doseAndRate_doseRange = malac.models.fhir.r4.Range()
+                            fhir_medicationDispense_dosageInstruction_doseAndRate.doseRange = fhir_medicationDispense_dosageInstruction_doseAndRate_doseRange
+                            IVLPQRange(cda_substanceAdministration_entryRelationship_substanceAdministration_doseQuantity, fhir_medicationDispense_dosageInstruction_doseAndRate_doseRange)
                     for cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS in cda_substanceAdministration_entryRelationship_substanceAdministration.effectiveTime or []:
                         if type(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS) is malac.models.cda.at_ext.SXPR_TS:
                             for cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS in cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS.comp or []:
@@ -88153,11 +88173,20 @@ def CdaEmedVerordnungEntryToFhir(cda, cda_section, cda_sbadm, fhir_composition, 
                                     fhir_medicationRequest_dosageInstruction_timing_repeat.periodUnit = malac.models.fhir.r4.UnitsOfTime(value=fhirpath.single(fhirpath_utils.get(cda_effectiveTime_SXPRTS_comp_period,'unit')))
             cda_doseQuantity = cda_sbadm.doseQuantity
             if cda_doseQuantity is not None:
-                fhir_medicationRequest_dosageInstruction_doseAndRate = malac.models.fhir.r4.Dosage_DoseAndRate()
-                fhir_medicationRequest_dosageInstruction.doseAndRate.append(fhir_medicationRequest_dosageInstruction_doseAndRate)
-                fhir_medicationRequest_dosageInstruction_doseAndRate_doseQuantity = malac.models.fhir.r4.Quantity()
-                fhir_medicationRequest_dosageInstruction_doseAndRate.doseQuantity = fhir_medicationRequest_dosageInstruction_doseAndRate_doseQuantity
-                PQQuantity(cda_doseQuantity, fhir_medicationRequest_dosageInstruction_doseAndRate_doseQuantity)
+                if cda_doseQuantity.low is None or cda_doseQuantity.high is None and cda_doseQuantity.center is None and cda_doseQuantity.width is None:
+                    fhir_medicationRequest_dosageInstruction_doseAndRate = malac.models.fhir.r4.Dosage_DoseAndRate()
+                    fhir_medicationRequest_dosageInstruction.doseAndRate.append(fhir_medicationRequest_dosageInstruction_doseAndRate)
+                    fhir_medicationRequest_dosageInstruction_doseAndRate_doseQuantity = malac.models.fhir.r4.Quantity()
+                    fhir_medicationRequest_dosageInstruction_doseAndRate.doseQuantity = fhir_medicationRequest_dosageInstruction_doseAndRate_doseQuantity
+                    PQQuantity(cda_doseQuantity, fhir_medicationRequest_dosageInstruction_doseAndRate_doseQuantity)
+            cda_doseQuantity = cda_sbadm.doseQuantity
+            if cda_doseQuantity is not None:
+                if cda_doseQuantity.low is not None or cda_doseQuantity.high is not None and cda_doseQuantity.center is None and cda_doseQuantity.width is None:
+                    fhir_medicationRequest_dosageInstruction_doseAndRate = malac.models.fhir.r4.Dosage_DoseAndRate()
+                    fhir_medicationRequest_dosageInstruction.doseAndRate.append(fhir_medicationRequest_dosageInstruction_doseAndRate)
+                    fhir_medicationRequest_dosageInstruction_doseAndRate_doseRange = malac.models.fhir.r4.Range()
+                    fhir_medicationRequest_dosageInstruction_doseAndRate.doseRange = fhir_medicationRequest_dosageInstruction_doseAndRate_doseRange
+                    IVLPQRange(cda_doseQuantity, fhir_medicationRequest_dosageInstruction_doseAndRate_doseRange)
             cda_substanceAdministration_routeCode = cda_sbadm.routeCode
             if cda_substanceAdministration_routeCode is not None:
                 if fhir_medicationRequest_dosageInstruction.route is None:
@@ -88231,11 +88260,20 @@ def CdaEmedVerordnungEntryToFhir(cda, cda_section, cda_sbadm, fhir_composition, 
                                 fhir_medicationRequest_dosageInstruction_timing_repeat.offset = malac.models.fhir.r4.unsignedInt(value=cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_EIVLTS_offset_value)
                 cda_substanceAdministration_entryRelationship_substanceAdministration_doseQuantity = cda_substanceAdministration_entryRelationship_substanceAdministration.doseQuantity
                 if cda_substanceAdministration_entryRelationship_substanceAdministration_doseQuantity is not None:
-                    fhir_medicationRequest_dosageInstruction_doseAndRate = malac.models.fhir.r4.Dosage_DoseAndRate()
-                    fhir_medicationRequest_dosageInstruction.doseAndRate.append(fhir_medicationRequest_dosageInstruction_doseAndRate)
-                    fhir_medicationRequest_dosageInstruction_doseAndRate_doseQuantity = malac.models.fhir.r4.Quantity()
-                    fhir_medicationRequest_dosageInstruction_doseAndRate.doseQuantity = fhir_medicationRequest_dosageInstruction_doseAndRate_doseQuantity
-                    PQQuantity(cda_substanceAdministration_entryRelationship_substanceAdministration_doseQuantity, fhir_medicationRequest_dosageInstruction_doseAndRate_doseQuantity)
+                    if cda_substanceAdministration_entryRelationship_substanceAdministration_doseQuantity.low is None or cda_substanceAdministration_entryRelationship_substanceAdministration_doseQuantity.high is None and cda_substanceAdministration_entryRelationship_substanceAdministration_doseQuantity.center is None and cda_substanceAdministration_entryRelationship_substanceAdministration_doseQuantity.width is None:
+                        fhir_medicationRequest_dosageInstruction_doseAndRate = malac.models.fhir.r4.Dosage_DoseAndRate()
+                        fhir_medicationRequest_dosageInstruction.doseAndRate.append(fhir_medicationRequest_dosageInstruction_doseAndRate)
+                        fhir_medicationRequest_dosageInstruction_doseAndRate_doseQuantity = malac.models.fhir.r4.Quantity()
+                        fhir_medicationRequest_dosageInstruction_doseAndRate.doseQuantity = fhir_medicationRequest_dosageInstruction_doseAndRate_doseQuantity
+                        PQQuantity(cda_substanceAdministration_entryRelationship_substanceAdministration_doseQuantity, fhir_medicationRequest_dosageInstruction_doseAndRate_doseQuantity)
+                cda_substanceAdministration_entryRelationship_substanceAdministration_doseQuantity = cda_substanceAdministration_entryRelationship_substanceAdministration.doseQuantity
+                if cda_substanceAdministration_entryRelationship_substanceAdministration_doseQuantity is not None:
+                    if cda_substanceAdministration_entryRelationship_substanceAdministration_doseQuantity.low is not None or cda_substanceAdministration_entryRelationship_substanceAdministration_doseQuantity.high is not None and cda_substanceAdministration_entryRelationship_substanceAdministration_doseQuantity.center is None and cda_substanceAdministration_entryRelationship_substanceAdministration_doseQuantity.width is None:
+                        fhir_medicationRequest_dosageInstruction_doseAndRate = malac.models.fhir.r4.Dosage_DoseAndRate()
+                        fhir_medicationRequest_dosageInstruction.doseAndRate.append(fhir_medicationRequest_dosageInstruction_doseAndRate)
+                        fhir_medicationRequest_dosageInstruction_doseAndRate_doseRange = malac.models.fhir.r4.Range()
+                        fhir_medicationRequest_dosageInstruction_doseAndRate.doseRange = fhir_medicationRequest_dosageInstruction_doseAndRate_doseRange
+                        IVLPQRange(cda_substanceAdministration_entryRelationship_substanceAdministration_doseQuantity, fhir_medicationRequest_dosageInstruction_doseAndRate_doseRange)
                 for cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS in cda_substanceAdministration_entryRelationship_substanceAdministration.effectiveTime or []:
                     if type(cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS) is malac.models.cda.at_ext.SXPR_TS:
                         for cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS_comp_EIVLTS in cda_substanceAdministration_entryRelationship_substanceAdministration_effectiveTime_SXPRTS.comp or []:
@@ -88419,9 +88457,8 @@ def CdaEmedVerordnungEntryToFhir(cda, cda_section, cda_sbadm, fhir_composition, 
                             if cda_entryRelationship_act_entryRelationship_act_text is not None:
                                 cda_entryRelationship_act_entryRelationship_act_reference = cda_entryRelationship_act_entryRelationship_act_text.reference
                                 if cda_entryRelationship_act_entryRelationship_act_reference is not None:
-                                    if fhir_medication.text is None:
-                                        fhir_medication.text = malac.models.fhir.r4.Narrative()
-                                    fhir_medication_text = fhir_medication.text
+                                    fhir_medication_text = malac.models.fhir.r4.Narrative()
+                                    fhir_medication.text = fhir_medication_text
                                     fhir_medication_text.status = string(value='additional')
                                     cda_entryRelationship_act_entryRelationship_act_reference_value = cda_entryRelationship_act_entryRelationship_act_reference.value
                                     if cda_entryRelationship_act_entryRelationship_act_reference_value is not None:
